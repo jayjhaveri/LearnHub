@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">LearnHub</string>
+    <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="categories_fragment_title">Categories</string>
+    <string name="home_fragment_title">Home</string>
+    <string name="most_popular_fragment_title">Most Popular</string>
+    <string name="most_recent_fragment_title">Most Recent</string>
+    <string name="title_activity_new_video">NewVideoActivity</string>
+    <string name="session_uri">session_uri</string>
+    <string name="utility">utility</string>
+    <string name="video_uri">videoUri</string>
+    <string name="title_video">Title</string>
+    <string name="description_video">Description</string>
+    <string name="title_activity_category">CategoryActivity</string>
+</resources>
