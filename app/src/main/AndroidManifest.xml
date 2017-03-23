@@ -47,6 +47,16 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.jayjhaveri.learnhub.MainActivity" />
         </activity>
+        <activity
+            android:name=".VideoDetailActivity"
+            android:label="@string/title_activity_video_detail"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.jayjhaveri.learnhub.MainActivity" />
+        </activity>
+        <activity android:name=".LocalActivity"></activity>
     </application>
 
 </manifest>

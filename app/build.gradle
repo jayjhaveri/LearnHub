@@ -42,7 +42,6 @@ ext {
         // Single target that includes all FirebaseUI libraries above
         compile 'com.firebaseui:firebase-ui:1.1.1'
 
-
         //ButterKnife
         compile 'com.jakewharton:butterknife:8.5.1'
 
@@ -53,6 +52,9 @@ ext {
         compile 'com.android.support.constraint:constraint-layout:1.0.0-beta5'
         testCompile 'junit:junit:4.12'
         annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+
+        //Preview seekbar
+        compile 'com.github.rubensousa:previewseekbar:0.3'
     }
 }
 
@@ -68,4 +70,7 @@ ext {
 
 
 
+dependencies {
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta5'
+}
 apply plugin: 'com.google.gms.google-services'

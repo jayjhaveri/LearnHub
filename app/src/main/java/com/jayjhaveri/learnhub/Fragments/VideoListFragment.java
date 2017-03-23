@@ -1,5 +1,6 @@
 package com.jayjhaveri.learnhub.Fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -18,6 +19,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.jayjhaveri.learnhub.R;
+import com.jayjhaveri.learnhub.VideoDetailActivity;
 import com.jayjhaveri.learnhub.model.VideoDetail;
 import com.jayjhaveri.learnhub.viewholder.VideoViewHolder;
 
@@ -78,12 +80,22 @@ public abstract class VideoListFragment extends Fragment {
         mAdapter = new FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder>(VideoDetail.class, R.layout.list_video,
                 VideoViewHolder.class, postsQuery) {
             @Override
-            protected void populateViewHolder(VideoViewHolder viewHolder, VideoDetail model, int position) {
+            protected void populateViewHolder(VideoViewHolder viewHolder, final VideoDetail model, final int position) {
                 final DatabaseReference videoRef = getRef(position);
 
                 Log.d("Model",model.body);
                 mImageReference = mStorage.getReferenceFromUrl(model.imageUrl);
                 final String videoKey = videoRef.getKey();
+
+                viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getActivity(), VideoDetailActivity.class);
+                        intent.putExtra(VideoDetailActivity.EXTRA_POST_KEY,videoKey);
+                        intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_URL, model.videoUrl);
+                        startActivity(intent);
+                    }
+                });
 
                 viewHolder.bindToPost(getActivity(),model, mImageReference);
             }

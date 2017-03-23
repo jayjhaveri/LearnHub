@@ -1,4 +1,9 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
     <dimen name="list_textView_left_margin">16dp</dimen>
+    <dimen name="video_preview_height">50dp</dimen>
+    <dimen name="video_frame_width">0dp</dimen>
+    <dimen name="video_preview_width">100dp</dimen>
+
+    <dimen name="activity_horizontal_margin">16dp</dimen>
 </resources>
