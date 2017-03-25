@@ -22,55 +22,40 @@ android {
 
 ext {
     versionAndroidSDK = '25.1.0'
-    dependencies {
-        compile fileTree(include: ['*.jar'], dir: 'libs')
-        androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-            exclude group: 'com.android.support', module: 'support-annotations'
-        })
-
-        compile "com.android.support:appcompat-v7:$versionAndroidSDK"
-        compile "com.android.support:design:$versionAndroidSDK"
-        compile "com.android.support:support-v4:$versionAndroidSDK"
-
-        //Firebase
-        compile 'com.google.firebase:firebase-auth:10.0.1'
-        compile 'com.google.firebase:firebase-core:10.0.1'
-        compile 'com.google.firebase:firebase-database:10.0.1'
-        compile 'com.google.firebase:firebase-storage:10.0.1'
-        compile 'com.google.firebase:firebase-crash:10.0.1'
-
-        // Single target that includes all FirebaseUI libraries above
-        compile 'com.firebaseui:firebase-ui:1.1.1'
-
-        //ButterKnife
-        compile 'com.jakewharton:butterknife:8.5.1'
-
-        //Exoplayer
-        compile 'com.google.android.exoplayer:exoplayer:r2.2.0'
-        //Circle Image View
-        compile 'de.hdodenhof:circleimageview:2.1.0'
-        compile 'com.android.support.constraint:constraint-layout:1.0.0-beta5'
-        testCompile 'junit:junit:4.12'
-        annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
-
-        //Preview seekbar
-        compile 'com.github.rubensousa:previewseekbar:0.3'
-    }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
 dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+
+    compile "com.android.support:appcompat-v7:$versionAndroidSDK"
+    compile "com.android.support:design:$versionAndroidSDK"
+    compile "com.android.support:support-v4:$versionAndroidSDK"
+
+    //Firebase
+    compile 'com.google.firebase:firebase-auth:10.0.1'
+    compile 'com.google.firebase:firebase-core:10.0.1'
+    compile 'com.google.firebase:firebase-database:10.0.1'
+    compile 'com.google.firebase:firebase-storage:10.0.1'
+    compile 'com.google.firebase:firebase-crash:10.0.1'
+
+    // Single target that includes all FirebaseUI libraries above
+    compile 'com.firebaseui:firebase-ui:1.1.1'
+
+    //ButterKnife
+    compile 'com.jakewharton:butterknife:8.5.1'
+
+    //Exoplayer
+    compile 'com.google.android.exoplayer:exoplayer:r2.2.0'
+    //Circle Image View
+    compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.0-beta5'
+    testCompile 'junit:junit:4.12'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
+
+    //Preview seekbar
+    compile 'com.github.rubensousa:previewseekbar:0.3'
 }
 apply plugin: 'com.google.gms.google-services'
