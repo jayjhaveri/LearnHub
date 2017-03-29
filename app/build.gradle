@@ -57,5 +57,17 @@ dependencies {
 
     //Preview seekbar
     compile 'com.github.rubensousa:previewseekbar:0.3'
+
+    //Expandable view
+    compile 'com.github.aakira:expandable-layout:1.4.2@aar'
+
+    //Likebutton library
+    compile 'com.github.jd-alexander:LikeButton:0.2.0'
+
+    //VideoCache
+    compile 'com.danikula:videocache:2.6.4'
+
+    //Draggable panel
+    compile 'com.github.pedrovgs:draggablepanel:1.9'
 }
 apply plugin: 'com.google.gms.google-services'

@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2016 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2016 The Android Open Source Project
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
      You may obtain a copy of the License at
@@ -73,6 +72,7 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/previewFrameLayout"
                 android:layout_marginTop="10dp"
+                android:layout_weight="8"
                 android:max="800"
                 android:progressTint="@color/colorPrimary"
                 android:thumbTint="@color/colorPrimary"
@@ -103,13 +103,11 @@
         android:orientation="horizontal"
         android:paddingTop="4dp">
 
-        <ImageButton
-            android:id="@id/exo_prev"
-            style="@style/ExoMediaButton.Previous" />
 
         <ImageButton
             android:id="@id/exo_rew"
             style="@style/ExoMediaButton.Rewind" />
+
 
         <ImageButton
             android:id="@id/exo_play"
@@ -119,13 +117,15 @@
             android:id="@id/exo_pause"
             style="@style/ExoMediaButton.Pause" />
 
+
         <ImageButton
             android:id="@id/exo_ffwd"
             style="@style/ExoMediaButton.FastForward" />
 
         <ImageButton
-            android:id="@id/exo_next"
-            style="@style/ExoMediaButton.Next" />
+            android:id="@+id/exo_fullscreen"
+            style="@style/FullscreenButton" />
+
 
     </LinearLayout>
 

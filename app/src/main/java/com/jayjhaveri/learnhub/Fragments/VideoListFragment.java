@@ -32,20 +32,17 @@ import butterknife.ButterKnife;
 
 public abstract class VideoListFragment extends Fragment {
 
+    public static final String EXTRA_VIDEO_UID = "video_uid";
     private static final String TAG = "VideoListFragment";
-
+    @BindView(R.id.rv_video_list)
+    RecyclerView mRecycler;
+    // [END define_database_reference]
     // [START define_database_reference]
     private DatabaseReference mDatabase;
-    // [END define_database_reference]
-
     private FirebaseStorage mStorage;
     private StorageReference mImageReference;
     private StorageReference mProfileImageReference;
-
     private FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder> mAdapter;
-
-    @BindView(R.id.rv_video_list)
-     RecyclerView mRecycler;
     private LinearLayoutManager mManager;
 
     public VideoListFragment() {}
@@ -93,6 +90,7 @@ public abstract class VideoListFragment extends Fragment {
                         Intent intent = new Intent(getActivity(), VideoDetailActivity.class);
                         intent.putExtra(VideoDetailActivity.EXTRA_POST_KEY,videoKey);
                         intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_URL, model.videoUrl);
+                        intent.putExtra(EXTRA_VIDEO_UID, model.uid);
                         startActivity(intent);
                     }
                 });

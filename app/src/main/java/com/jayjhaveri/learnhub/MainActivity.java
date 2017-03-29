@@ -47,25 +47,19 @@ import butterknife.ButterKnife;
 
 public class MainActivity extends BaseActivity {
 
+    // Choose an arbitrary request code value
+    public static final int RC_SIGN_IN = 123;
+    private static final int REQUEST_TAKE_GALLERY_VIDEO = 101;
     //Categories ArrayList
     public static List<Category> categoryList = new ArrayList<>();
-
-    private static final int REQUEST_TAKE_GALLERY_VIDEO = 101;
     @BindView(R.id.main_view_pager)
     ViewPager mViewPager;
-
     @BindView(R.id.main_tabs)
     TabLayout mTabLayout;
-
     @BindView(R.id.fab)
     FloatingActionButton fab;
-
     private int currentItemForViewpager = 1;
-
     private Uri outputFileUri;
-
-    // Choose an arbitrary request code value
-    private static final int RC_SIGN_IN = 123;
     private boolean saved = false;
 
     private void openImageIntent() {
@@ -210,39 +204,6 @@ public class MainActivity extends BaseActivity {
         viewPager.setAdapter(adapter);
     }
 
-
-    public  static class ViewPagerAdapter extends FragmentPagerAdapter {
-
-        private final List<Fragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
-
-
-        public ViewPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
-
-    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -302,5 +263,37 @@ public class MainActivity extends BaseActivity {
                 }
             });
         }
+    }
+
+    public static class ViewPagerAdapter extends FragmentPagerAdapter {
+
+        private final List<Fragment> mFragmentList = new ArrayList<>();
+        private final List<String> mFragmentTitleList = new ArrayList<>();
+
+
+        public ViewPagerAdapter(FragmentManager fm) {
+            super(fm);
+        }
+
+        @Override
+        public Fragment getItem(int position) {
+            return mFragmentList.get(position);
+        }
+
+        @Override
+        public int getCount() {
+            return mFragmentList.size();
+        }
+
+        public void addFragment(Fragment fragment, String title) {
+            mFragmentList.add(fragment);
+            mFragmentTitleList.add(title);
+        }
+
+        @Override
+        public CharSequence getPageTitle(int position) {
+            return mFragmentTitleList.get(position);
+        }
+
     }
 }
