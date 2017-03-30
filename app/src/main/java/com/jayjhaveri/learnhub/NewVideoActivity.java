@@ -61,10 +61,9 @@ import butterknife.ButterKnife;
 public class NewVideoActivity extends BaseActivity {
 
 
+    final int RC_IMAGE = 201;
     @BindView(R.id.vv_new)
     SimpleExoPlayerView mVv_new;
-    private SimpleExoPlayer mPlayer;
-
     //EditText for VideoTitle
     @BindView(R.id.et_title)
     TextInputEditText mEt_title;
@@ -84,31 +83,24 @@ public class NewVideoActivity extends BaseActivity {
     StorageReference mStorageRef;
     StorageReference mVideoRef;
     StorageReference mImageRef;
-    private DatabaseReference mDatabase;
     FirebaseAuth mAuth;
-
     //Uri from Upload activity
     Uri videoUri;
-
     //Uri for image
     Uri imageUri;
-
     //Download ImageUrl
     Uri downloadImageUrl;
-
     //Download VideoUrl
     Uri downloadVideoUrl;
-
     //Selected category
     String mSelectedCategory;
-
     //Notification progress
     NotificationManager mNotifyManager;
-    private NotificationCompat.Builder mBuilder;
     int mId = 1;
+    private SimpleExoPlayer mPlayer;
+    private DatabaseReference mDatabase;
+    private NotificationCompat.Builder mBuilder;
     private boolean saved = false;
-
-    final int RC_IMAGE = 201;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -291,7 +283,7 @@ public class NewVideoActivity extends BaseActivity {
                     public void run() {
 
 
-                        UploadTask uploadTaskImage = mImageRef.putFile(imageUri);
+                        final UploadTask uploadTaskImage = mImageRef.putFile(imageUri);
 
 
                         uploadTaskImage.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -301,7 +293,7 @@ public class NewVideoActivity extends BaseActivity {
                             }
                         });
 
-                        UploadTask uploadTaskVideo = mVideoRef.putFile(videoUri);
+                        final UploadTask uploadTaskVideo = mVideoRef.putFile(videoUri);
                         ;
 
                         mNotifyManager.notify(mId, mBuilder.build());
@@ -331,6 +323,7 @@ public class NewVideoActivity extends BaseActivity {
                                 if (profileImage != null) {
                                      videoDetail = new VideoDetail(getUid(),
                                             user.getDisplayName(),
+                                             mSelectedCategory,
                                             title,
                                             desc,
                                             profileImage,
@@ -340,6 +333,7 @@ public class NewVideoActivity extends BaseActivity {
                                 } else {
                                      videoDetail = new VideoDetail(getUid(),
                                             user.getDisplayName(),
+                                             mSelectedCategory,
                                             title,
                                             desc,
                                             null,
@@ -352,6 +346,7 @@ public class NewVideoActivity extends BaseActivity {
                                 Map<String, Object> videoValues = videoDetail.toMap();
 
                                 Map<String, Object> childUpdates = new HashMap<>();
+
                                 childUpdates.put("/videos/" + key, videoValues);
                                 childUpdates.put("/user-videos/" + userId + "/" + key, videoValues);
                                 childUpdates.put("/categories/" + mSelectedCategory + "/" + key, videoValues);

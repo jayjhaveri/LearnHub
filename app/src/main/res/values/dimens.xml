@@ -6,7 +6,7 @@
     <dimen name="video_preview_width">100dp</dimen>
 
     <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="playerView_default">204dp</dimen>
+    <dimen name="playerView_default">300dp</dimen>
 
     <!--Draggable dimensions-->
 
@@ -36,5 +36,30 @@
     <dimen name="tv_show_title_margin_left_top">5dip</dimen>
     <dimen name="tv_show_margin_left">5dip</dimen>
     <dimen name="tv_show_margin_bottom">10dip</dimen>
+
+    <!-- Video Item Detail View Dimensions-->
+    <!-- Text Size -->
+    <dimen name="video_item_detail_title_text_size">20sp</dimen>
+    <dimen name="video_item_detail_views_text_size">14sp</dimen>
+    <dimen name="video_item_detail_likes_text_size">14sp</dimen>
+    <dimen name="video_item_detail_uploader_text_size">14sp</dimen>
+    <dimen name="video_item_detail_upload_date_text_size">14sp</dimen>
+    <dimen name="video_item_detail_description_text_size">14sp</dimen>
+    <dimen name="video_item_detail_next_text_size">16sp</dimen>
+    <dimen name="video_item_detail_similar_text_size">16sp</dimen>
+    <!-- Elements Size -->
+    <dimen name="video_item_detail_thumbnail_image_height">200dp</dimen>
+    <dimen name="video_item_detail_uploader_image_size">50dp</dimen>
+    <dimen name="video_item_detail_like_image_height">18sp</dimen>
+    <dimen name="video_item_detail_like_image_width">18sp</dimen>
+    <dimen name="channel_avatar_size">70dp</dimen>
+    <dimen name="channel_avatar_halo_size">74dp</dimen>
+    <!-- Paddings & Margins -->
+    <dimen name="video_item_detail_like_margin">6sp</dimen>
+    <dimen name="video_item_detail_play_fab_margin">20dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="app_bar_height">180dp</dimen>
+    <dimen name="text_margin">16dp</dimen>
 
 </resources>

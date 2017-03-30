@@ -16,4 +16,10 @@
     <string name="description_video">Description</string>
     <string name="title_activity_category">CategoryActivity</string>
     <string name="title_activity_video_detail">VideoDetailActivity</string>
+
+    <string name="detail_likes_img_view_description">Likes</string>
+    <string name="detail_dislikes_img_view_description">Dislike</string>
+    <string name="detail_uploader_thumbnail_view_description">Uploader\\\'s userpic thumbnail</string>
+    <string name="next_video_title">Next Video</string>
+    <string name="similar_videos_btn_text">Similar videos</string>
 </resources>

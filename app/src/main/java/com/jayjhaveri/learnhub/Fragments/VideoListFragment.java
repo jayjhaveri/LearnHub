@@ -6,7 +6,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +44,8 @@ public abstract class VideoListFragment extends Fragment {
     private FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder> mAdapter;
     private LinearLayoutManager mManager;
 
+    private boolean isContainsKey = false;
+
     public VideoListFragment() {}
 
     @Override
@@ -80,7 +81,7 @@ public abstract class VideoListFragment extends Fragment {
             protected void populateViewHolder(VideoViewHolder viewHolder, final VideoDetail model, final int position) {
                 final DatabaseReference videoRef = getRef(position);
 
-                Log.d("Model",model.body);
+
                 mImageReference = mStorage.getReferenceFromUrl(model.imageUrl);
                 final String videoKey = videoRef.getKey();
 
@@ -89,8 +90,7 @@ public abstract class VideoListFragment extends Fragment {
                     public void onClick(View view) {
                         Intent intent = new Intent(getActivity(), VideoDetailActivity.class);
                         intent.putExtra(VideoDetailActivity.EXTRA_POST_KEY,videoKey);
-                        intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_URL, model.videoUrl);
-                        intent.putExtra(EXTRA_VIDEO_UID, model.uid);
+                        intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_DETAIL, model);
                         startActivity(intent);
                     }
                 });

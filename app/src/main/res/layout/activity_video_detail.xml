@@ -5,121 +5,376 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".VideoDetailActivity">
+
+    <android.support.design.widget.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/AppTheme.AppBarOverlay">
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            app:popupTheme="@style/AppTheme.PopupOverlay"
+            app:title="@string/app_name" />
+
+    </android.support.design.widget.AppBarLayout>
 
     <com.google.android.exoplayer2.ui.SimpleExoPlayerView
         android:id="@+id/player_view"
         android:layout_width="match_parent"
-        android:layout_height="205dp"
+        android:layout_height="300dp"
         android:keepScreenOn="true"
         app:controller_layout_id="@layout/exoplayer_controls"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
         app:resize_mode="fill" />
+
 
     <android.support.v4.widget.NestedScrollView
         android:id="@+id/ns_nestedView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="200dp">
+        android:layout_marginTop="300dp">
 
-        <LinearLayout
+        <!-- <LinearLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:orientation="vertical">
+
+             <Button
+                 android:id="@+id/expandableButton1"
+                 android:layout_width="fill_parent"
+                 android:layout_height="wrap_content"
+                 android:background="@android:color/transparent"
+                 android:drawableRight="@android:drawable/arrow_down_float"
+                 android:onClick="expandableButton1"
+                 android:paddingEnd="10dp"
+                 android:paddingLeft="10dp"
+                 android:paddingRight="10dp"
+                 android:textColor="@android:color/darker_gray"
+                 tools:text="What is android" />
+
+             <LinearLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:gravity="center"
+                 android:orientation="horizontal">
+
+                 <ImageView
+                     android:id="@+id/iv_like"
+                     android:src="@drawable/ic_thumb_up_white_24px"
+                     android:tint="@color/darkColor"
+                     android:layout_width="24dp"
+                     android:layout_height="24dp" />
+
+                 <ImageView
+                     android:id="@+id/iv_dislike"
+                     android:src="@drawable/ic_thumb_up_white_24px"
+                     android:tint="@color/darkColor"
+                     android:rotation="180"
+                     android:layout_width="24dp"
+                     android:layout_height="24dp" />
+
+
+                 <ImageView
+                     android:layout_width="48dp"
+                     android:layout_height="48dp"
+                     android:background="@android:color/transparent"
+                     android:src="@drawable/ic_fullscreen_white_24px"
+                     android:tint="@android:color/darker_gray" />
+
+             </LinearLayout>
+
+             <View
+                 android:layout_width="match_parent"
+                 android:layout_height="2dp"
+                 android:background="@android:color/darker_gray" />
+
+             <LinearLayout
+                 android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+                 android:gravity="center"
+                 android:orientation="horizontal">
+
+                 <de.hdodenhof.circleimageview.CircleImageView
+                     android:id="@+id/ci_profile_image"
+                     android:layout_width="60dp"
+                     android:layout_height="60dp"
+                     android:paddingEnd="8dp"
+                     android:paddingRight="8dp"
+                     tools:src="@mipmap/ic_launcher" />
+
+                 <TextView
+                     android:id="@+id/tv_profile_name"
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     tools:text="Jay Jhaveri" />
+
+             </LinearLayout>
+
+
+             <com.github.aakira.expandablelayout.ExpandableRelativeLayout
+                 android:id="@+id/expandableLayout1"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"
+                 android:layout_below="@+id/expandableButton1"
+                 android:background="@android:color/transparent"
+                 android:padding="16dp"
+                 app:ael_duration="250"
+                 app:ael_expanded="false"
+                 app:ael_interpolator="linear"
+                 app:ael_orientation="vertical">
+
+                 <TextView
+                     android:layout_width="wrap_content"
+                     android:layout_height="wrap_content"
+                     android:text="Android is an open source and Linux-based Operating System for mobile devices such as smartphones and tablet computers. Android was developed by the Open Handset Alliance, led by Google, and other companies. The first beta version of the Android Software Development Kit (SDK) was released by Google in 2007 where as the first commercial version, Android 1.0, was released in September 2008."
+                     android:textColor="@android:color/darker_gray" />
+             </com.github.aakira.expandablelayout.ExpandableRelativeLayout>
+
+
+         </LinearLayout>-->
+
+        <RelativeLayout
+            android:id="@+id/detail_text_content_layout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <Button
-                android:id="@+id/expandableButton1"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:drawableRight="@android:drawable/arrow_down_float"
-                android:onClick="expandableButton1"
-                android:paddingEnd="10dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:textColor="@android:color/darker_gray"
-                tools:text="What is android" />
+            android:layout_height="match_parent"
+            android:background="?android:windowBackground"
+            android:visibility="visible">
 
             <LinearLayout
+                android:id="@+id/detailTopView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:layout_height="wrap_content">
 
-                <com.like.LikeButton
-                    android:id="@+id/bt_like"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    app:like_drawable="@drawable/thumb_on"
-                    app:unlike_drawable="@drawable/thumb_off">
-
-                </com.like.LikeButton>
-
-                <com.like.LikeButton
-                    android:id="@+id/bt_dislike"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:rotation="180"
-                    app:like_drawable="@drawable/thumb_on"
-                    app:unlike_drawable="@drawable/thumb_off" />
+                <TextView
+                    android:id="@+id/tv_video_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginTop="12dp"
+                    android:layout_weight=".7"
+                    android:text="Title"
+                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:textSize="@dimen/video_item_detail_title_text_size" />
 
                 <ImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@android:color/transparent"
-                    android:src="@drawable/ic_fullscreen_white_24px"
-                    android:tint="@android:color/darker_gray" />
+                    android:id="@+id/toggle_description_view"
+                    android:layout_width="15dp"
+                    android:layout_height="30dp"
+                    android:layout_marginEnd="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/arrow_down" />
 
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:background="@android:color/darker_gray" />
-
-            <LinearLayout
+            <TextView
+                android:id="@+id/detail_view_count_view"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:orientation="horizontal">
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_below="@id/detailTopView"
+                android:layout_marginLeft="12dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp"
+                android:text="10,069,948 views"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="@dimen/video_item_detail_views_text_size" />
 
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:id="@+id/ci_profile_image"
-                    android:layout_width="60dp"
-                    android:layout_height="60dp"
-                    android:paddingEnd="8dp"
-                    android:paddingRight="8dp"
-                    tools:src="@mipmap/ic_launcher" />
+            <RelativeLayout
+                android:id="@+id/detailExtraView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/detail_view_count_view"
+                android:layout_marginEnd="12dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="12dp"
+                android:layout_marginStart="12dp"
+                android:visibility="gone">
 
                 <TextView
-                    android:id="@+id/tv_profile_name"
+                    android:id="@+id/detail_upload_date_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    tools:text="Jay Jhaveri" />
+                    android:layout_marginTop="3dp"
+                    android:text="Upload date"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textSize="@dimen/video_item_detail_upload_date_text_size" />
 
+                <TextView
+                    android:id="@+id/tv_video_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/detail_upload_date_view"
+                    android:layout_marginTop="3dp"
+                    android:text="Description............."
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textSize="@dimen/video_item_detail_description_text_size" />
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/stream_info_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/detailExtraView"
+                android:layout_marginLeft="12dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="5dp">
+
+                <ImageView
+                    android:id="@+id/iv_like"
+                    android:layout_width="@dimen/video_item_detail_like_image_width"
+                    android:layout_height="@dimen/video_item_detail_like_image_height"
+                    android:contentDescription="@string/detail_likes_img_view_description"
+                    android:src="@drawable/ic_thumb_up_white_24px"
+                    android:tint="@color/darkColor" />
+
+                <TextView
+                    android:id="@+id/tv_like_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginStart="2dp"
+                    android:text="200"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textSize="@dimen/video_item_detail_likes_text_size" />
+
+                <ImageView
+                    android:id="@+id/iv_dislike"
+                    android:layout_width="@dimen/video_item_detail_like_image_width"
+                    android:layout_height="@dimen/video_item_detail_like_image_height"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginStart="10dp"
+                    android:contentDescription="@string/detail_dislikes_img_view_description"
+                    android:rotation="180"
+                    android:src="@drawable/ic_thumb_up_white_24px"
+                    android:tint="@color/darkColor" />
+
+                <TextView
+                    android:id="@+id/tv_dislike_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="2dp"
+                    android:layout_marginStart="2dp"
+                    android:text="100"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textSize="@dimen/video_item_detail_likes_text_size" />
             </LinearLayout>
 
+            <FrameLayout
+                android:id="@+id/detail_uploader_frame"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/stream_info_layout">
 
-            <com.github.aakira.expandablelayout.ExpandableRelativeLayout
-                android:id="@+id/expandableLayout1"
+                <RelativeLayout
+                    android:id="@+id/detail_uploader_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="#000" />
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/ci_uploader_image"
+                        android:layout_width="@dimen/video_item_detail_uploader_image_size"
+                        android:layout_height="@dimen/video_item_detail_uploader_image_size"
+                        android:layout_alignParentLeft="true"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginBottom="5dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="5dp"
+                        android:contentDescription="@string/detail_uploader_thumbnail_view_description"
+                        android:src="@mipmap/ic_launcher" />
+
+                    <TextView
+                        android:id="@+id/tv_uploader_name"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginStart="28dp"
+                        android:layout_toEndOf="@+id/ci_uploader_image"
+                        android:layout_toRightOf="@+id/ci_uploader_image"
+                        android:text="Uploader"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textSize="@dimen/video_item_detail_uploader_text_size"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:layout_below="@id/ci_uploader_image"
+
+                        android:layout_toEndOf="@+id/ci_uploader_image"
+                        android:layout_toRightOf="@+id/ci_uploader_image"
+                        android:background="#000" />
+                </RelativeLayout>
+
+                <Button
+                    android:id="@+id/channel_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="13dp"
+                    android:background="?attr/selectableItemBackground" />
+            </FrameLayout>
+
+            <RelativeLayout
+                android:id="@+id/detail_next_stream_root_layout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_below="@+id/expandableButton1"
-                android:background="@android:color/transparent"
-                android:padding="16dp"
-                app:ael_duration="250"
-                app:ael_expanded="false"
-                app:ael_interpolator="linear"
-                app:ael_orientation="vertical">
+                android:layout_below="@+id/detail_uploader_frame"
+                android:layout_centerHorizontal="true"
+                android:layout_gravity="center_horizontal|bottom"
+                android:layout_marginTop="10dp">
 
                 <TextView
+                    android:id="@+id/detail_next_stream_title"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Android is an open source and Linux-based Operating System for mobile devices such as smartphones and tablet computers. Android was developed by the Open Handset Alliance, led by Google, and other companies. The first beta version of the Android Software Development Kit (SDK) was released by Google in 2007 where as the first commercial version, Android 1.0, was released in September 2008."
-                    android:textColor="@android:color/darker_gray" />
-            </com.github.aakira.expandablelayout.ExpandableRelativeLayout>
+                    android:layout_centerHorizontal="true"
+                    android:text="@string/next_video_title"
+                    android:textAllCaps="true"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textSize="@dimen/video_item_detail_next_text_size" />
 
+                <!--<android.support.v7.widget.RecyclerView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/detail_next_stream_content"/>-->
+                <TextView
+                    android:id="@+id/detail_similar_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/detail_next_stream_title"
+                    android:layout_centerHorizontal="true"
+                    android:text="@string/similar_videos_btn_text"
+                    android:textAllCaps="true"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textSize="@dimen/video_item_detail_next_text_size" />
 
-        </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/similar_streams_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/detail_similar_title"
+                    android:orientation="vertical"></LinearLayout>
+            </RelativeLayout>
+        </RelativeLayout>
 
 
     </android.support.v4.widget.NestedScrollView>

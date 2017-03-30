@@ -3,6 +3,9 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="darkColor">#6D6D6D</color>
 
-    <color name="secondary_text">#6D6D6D</color>
+    <color name="secondary_text">@color/darkColor</color>
+
+    <color name="blue_like">#3F51B5</color>
 </resources>
