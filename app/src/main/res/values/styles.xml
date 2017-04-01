@@ -13,14 +13,20 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="ExoMediaButton.Repeat" parent="ExoMediaButton">
+        <item name="android:src">@drawable/ic_replay_white_24dp</item>
+    </style>
+
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
-    <style name="FullscreenButton" parent="ExoMediaButton">
+    <style name="ExoMediaButton.Fullscreen" parent="ExoMediaButton">
         <item name="android:src">@drawable/ic_fullscreen_white_24px</item>
-        <item name="android:layout_alignParentRight">true</item>
+        <item name="android:layout_gravity">bottom</item>
+        <item name="android:gravity">bottom</item>
     </style>
+
 
 </resources>

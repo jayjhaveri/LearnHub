@@ -6,7 +6,7 @@
     <dimen name="video_preview_width">100dp</dimen>
 
     <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="playerView_default">300dp</dimen>
+    <dimen name="playerView_default">205dp</dimen>
 
     <!--Draggable dimensions-->
 
@@ -61,5 +61,7 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="text_margin">16dp</dimen>
+    <dimen name="popup_width">1000dp</dimen>
+    <dimen name="popup_height">300dp</dimen>
 
 </resources>

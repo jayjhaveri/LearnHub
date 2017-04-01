@@ -22,4 +22,5 @@
     <string name="detail_uploader_thumbnail_view_description">Uploader\\\'s userpic thumbnail</string>
     <string name="next_video_title">Next Video</string>
     <string name="similar_videos_btn_text">Similar videos</string>
+    <string name="views_string">%s views</string>
 </resources>

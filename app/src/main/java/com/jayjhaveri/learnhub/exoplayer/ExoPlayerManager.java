@@ -18,6 +18,11 @@
 package com.jayjhaveri.learnhub.exoplayer;
 
 import android.net.Uri;
+import android.util.Log;
+import android.view.View;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 
 import com.github.rubensousa.previewseekbar.PreviewSeekBarLayout;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -36,32 +41,54 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.util.Util;
+import com.jayjhaveri.learnhub.R;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 public class ExoPlayerManager implements ExoPlayer.EventListener {
 
     // 1 minute
     private static final int ROUND_DECIMALS_THRESHOLD = 1 * 60 * 1000;
-
+    public AfterGetDuration mAfterGetDuration;
+    @BindView(R.id.play_pause)
+    FrameLayout mPlayPauseFrame;
+    @BindView(R.id.exo_repeat)
+    ImageButton mExoRepeat;
     private ExoPlayerMediaSourceBuilder mediaSourceBuilder;
     private SimpleExoPlayerView playerView;
     private SimpleExoPlayerView previewPlayerView;
     private SimpleExoPlayer player;
     private SimpleExoPlayer previewPlayer;
     private PreviewSeekBarLayout seekBarLayout;
+    private ProgressBar mProgressBar;
+    private long total_duration;
 
     public ExoPlayerManager(SimpleExoPlayerView playerView, SimpleExoPlayerView previewPlayerView,
-                            PreviewSeekBarLayout seekBarLayout, String url) {
+                            PreviewSeekBarLayout seekBarLayout, String url, AfterGetDuration afterGetDuration) {
         this.playerView = playerView;
         this.previewPlayerView = previewPlayerView;
         this.seekBarLayout = seekBarLayout;
         this.mediaSourceBuilder = new ExoPlayerMediaSourceBuilder(playerView.getContext(), url);
+        ButterKnife.bind(this, playerView);
+        mProgressBar = (ProgressBar) playerView.findViewById(R.id.pb_video);
+
+        mAfterGetDuration = afterGetDuration;
+    }
+
+    @OnClick(R.id.exo_repeat)
+    public void repeatVideo() {
+        player.seekTo(0);
+        player.setPlayWhenReady(true);
     }
 
     public void preview(float offset) {
+        total_duration = previewPlayer.getDuration();
         int scale = player.getDuration() >= ROUND_DECIMALS_THRESHOLD ? 2 : 1;
         float offsetRounded = roundOffset(offset, scale);
         player.setPlayWhenReady(false);
-        previewPlayer.seekTo((long) (offsetRounded * previewPlayer.getDuration()));
+        previewPlayer.seekTo((long) (offsetRounded * total_duration));
         previewPlayer.setPlayWhenReady(false);
     }
 
@@ -124,6 +151,7 @@ public class ExoPlayerManager implements ExoPlayer.EventListener {
         playerView.setPlayer(player);
         previewPlayer = createPreviewPlayer();
         previewPlayerView.setPlayer(previewPlayer);
+        total_duration = previewPlayer.getDuration();
     }
 
     private SimpleExoPlayer createFullPlayer() {
@@ -150,6 +178,33 @@ public class ExoPlayerManager implements ExoPlayer.EventListener {
         return player;
     }
 
+    private void seekBy(int milliSeconds) {
+        if (player == null) return;
+        int progress = (int) (player.getCurrentPosition() + milliSeconds);
+        player.seekTo(progress);
+    }
+
+    public void onFastRewind() {
+        seekBy(-10000);
+    }
+
+    public void onFastForward() {
+        seekBy(10000);
+    }
+
+    public void hideexo() {
+        playerView.hideController();
+    }
+
+    public void showExo() {
+        playerView.showController();
+    }
+
+    public long getTotalDuration() {
+        return total_duration;
+    }
+
+
     @Override
     public void onTimelineChanged(Timeline timeline, Object manifest) {
 
@@ -169,6 +224,23 @@ public class ExoPlayerManager implements ExoPlayer.EventListener {
     public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
         if (playbackState == ExoPlayer.STATE_READY && playWhenReady) {
             seekBarLayout.hidePreview();
+            /*mPauseButton.setVisibility(View.VISIBLE);
+            mPauseButton.setVisibility(View.VISIBLE);*/
+            total_duration = player.getDuration();
+            Log.d("manaegr", "" + total_duration);
+            mAfterGetDuration.runHandler(total_duration);
+            mPlayPauseFrame.setVisibility(View.VISIBLE);
+            mExoRepeat.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.GONE);
+        } else if (playbackState == ExoPlayer.STATE_ENDED) {
+            mPlayPauseFrame.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.GONE);
+            mExoRepeat.setVisibility(View.VISIBLE);
+
+        } else if (playbackState == ExoPlayer.STATE_BUFFERING) {
+            mPlayPauseFrame.setVisibility(View.GONE);
+            mExoRepeat.setVisibility(View.GONE);
+            mProgressBar.setVisibility(View.VISIBLE);
         }
     }
 
@@ -180,5 +252,9 @@ public class ExoPlayerManager implements ExoPlayer.EventListener {
     @Override
     public void onPositionDiscontinuity() {
 
+    }
+
+    public interface AfterGetDuration {
+        void runHandler(long total_duration);
     }
 }

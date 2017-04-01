@@ -22,7 +22,7 @@ public class VideoDetail implements Serializable {
     public String profileImage;
     public int likeCount = 0;
     public int disLikeCount = 0;
-    public int views = 0;
+    public long views = 0;
     public String videoUrl;
     public String imageUrl;
     public String fileUrl;
