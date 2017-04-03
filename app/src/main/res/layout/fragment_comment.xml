@@ -19,7 +19,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_weight="2"
-        android:hint="Write Comment here"
+        android:hint="@string/write_comment_video_detail"
         android:imeOptions="actionSend" />
 
     <de.hdodenhof.circleimageview.CircleImageView

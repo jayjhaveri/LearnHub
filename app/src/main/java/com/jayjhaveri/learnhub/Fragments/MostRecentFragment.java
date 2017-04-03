@@ -25,11 +25,13 @@ public class MostRecentFragment extends VideoListFragment {
         // due to sorting by push() keys
         Query recentPostsQuery;
         if (isCategoryActivity){
-            recentPostsQuery = databaseReference.child("categories").child(CategoryActivity.mCategoryName).limitToFirst(100);
+            recentPostsQuery = databaseReference.child("categories").child(CategoryActivity.categoryName).limitToFirst(100);
         }else {
             recentPostsQuery = databaseReference.child("videos")
                     .limitToFirst(100);
         }
+
+
         // [END recent_posts_query]
 
         return recentPostsQuery;

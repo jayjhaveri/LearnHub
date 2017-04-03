@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -35,17 +36,21 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentViewHolder> {
 
     private static final String TAG = CommentAdapter.class.getSimpleName();
-    private Context mContext;
-    private DatabaseReference mDatabaseReference;
-    private ChildEventListener mChildEventListener;
+    private Context context;
+    private DatabaseReference databaseReference;
+    private ChildEventListener childEventListener;
+    private FirebaseAuth auth;
 
-    private List<String> mCommentIds = new ArrayList<>();
-    private List<Comment> mComments = new ArrayList<>();
+    private EmptyCommentListListener emptyCommentListListener;
 
-    public CommentAdapter(Context context, DatabaseReference reference) {
-        mContext = context;
-        mDatabaseReference = reference;
+    private List<String> commentIds = new ArrayList<>();
+    private List<Comment> comments = new ArrayList<>();
 
+    public CommentAdapter(Context context, DatabaseReference reference, EmptyCommentListListener emptyCommentListListener) {
+        this.context = context;
+        databaseReference = reference;
+        auth = FirebaseAuth.getInstance();
+        this.emptyCommentListListener = emptyCommentListListener;
         // Create child event listener
         // [START child_event_listener_recycler]
         ChildEventListener childEventListener = new ChildEventListener() {
@@ -58,9 +63,9 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
                 // [START_EXCLUDE]
                 // Update RecyclerView
-                mCommentIds.add(dataSnapshot.getKey());
-                mComments.add(comment);
-                notifyItemInserted(mComments.size() - 1);
+                commentIds.add(dataSnapshot.getKey());
+                comments.add(comment);
+                notifyItemInserted(comments.size() - 1);
                 // [END_EXCLUDE]
             }
 
@@ -74,10 +79,10 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                 String commentKey = dataSnapshot.getKey();
 
                 // [START_EXCLUDE]
-                int commentIndex = mCommentIds.indexOf(commentKey);
+                int commentIndex = commentIds.indexOf(commentKey);
                 if (commentIndex > -1) {
                     // Replace with the new data
-                    mComments.set(commentIndex, newComment);
+                    comments.set(commentIndex, newComment);
 
                     // Update the RecyclerView
                     notifyItemChanged(commentIndex);
@@ -96,11 +101,11 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                 String commentKey = dataSnapshot.getKey();
 
                 // [START_EXCLUDE]
-                int commentIndex = mCommentIds.indexOf(commentKey);
+                int commentIndex = commentIds.indexOf(commentKey);
                 if (commentIndex > -1) {
                     // Remove data from the list
-                    mCommentIds.remove(commentIndex);
-                    mComments.remove(commentIndex);
+                    commentIds.remove(commentIndex);
+                    comments.remove(commentIndex);
 
                     // Update the RecyclerView
                     notifyItemRemoved(commentIndex);
@@ -125,7 +130,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.w(TAG, "postComments:onCancelled", databaseError.toException());
-                Toast.makeText(mContext, "Failed to load comments.",
+                Toast.makeText(CommentAdapter.this.context, "Failed to load comments.",
                         Toast.LENGTH_SHORT).show();
             }
         };
@@ -133,57 +138,72 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         // [END child_event_listener_recycler]
 
         // Store reference to listener so it can be removed on app stop
-        mChildEventListener = childEventListener;
+        this.childEventListener = childEventListener;
     }
 
     @Override
     public CommentViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View view = LayoutInflater.from(mContext).inflate(R.layout.list_comment, parent, false);
+        View view = LayoutInflater.from(context).inflate(R.layout.list_comment, parent, false);
         return new CommentViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(CommentViewHolder holder, final int position) {
-        final Comment comment = mComments.get(position);
-        holder.mTv_name.setText(comment.author);
-        holder.mTv_comment.setText(comment.text);
+    public void onBindViewHolder(final CommentViewHolder holder, int position) {
+        final Comment comment = comments.get(position);
 
-        holder.mIv_popUp_menu.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                PopupMenu popup = new PopupMenu(mContext, view);
-                MenuInflater inflater = popup.getMenuInflater();
-                inflater.inflate(R.menu.menu_comment_option, popup.getMenu());
-                popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                    @Override
-                    public boolean onMenuItemClick(MenuItem item) {
-                        switch (item.getItemId()) {
-                            case R.id.edit:
-                                edit(item);
-                                return true;
-                            case R.id.delete:
-                                delete(item);
-                                return true;
-                            default:
-                                return false;
+
+        holder.tv_name.setText(comment.author);
+        holder.tv_comment.setText(comment.text);
+
+        if (auth.getCurrentUser() == null) {
+            holder.iv_popUp_menu.setVisibility(View.GONE);
+
+        } else {
+
+            if (!(auth.getCurrentUser().getUid()).equals(comment.uid)) {
+                holder.iv_popUp_menu.setVisibility(View.GONE);
+            } else {
+                holder.iv_popUp_menu.setVisibility(View.VISIBLE);
+            }
+
+            holder.iv_popUp_menu.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PopupMenu popup = new PopupMenu(context, view);
+                    MenuInflater inflater = popup.getMenuInflater();
+                    inflater.inflate(R.menu.menu_comment_option, popup.getMenu());
+                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                        @Override
+                        public boolean onMenuItemClick(MenuItem item) {
+                            switch (item.getItemId()) {
+                                case R.id.edit:
+                                    edit(item);
+                                    return true;
+                                case R.id.delete:
+                                    delete(item);
+                                    return true;
+                                default:
+                                    return false;
+                            }
                         }
-                    }
-                });
-                popup.show();
-            }
+                    });
+                    popup.show();
+                }
 
-            private void delete(MenuItem item) {
-                Log.d("adapter", mDatabaseReference.child(mCommentIds.get(position)).getKey());
-                mDatabaseReference.child(mCommentIds.get(position)).removeValue();
-            }
-        });
+                private void delete(MenuItem item) {
+                    Log.d("adapter", databaseReference.child(commentIds.get(holder.getAdapterPosition())).getKey());
+                    databaseReference.child(commentIds.get(holder.getAdapterPosition())).removeValue();
+                }
+            });
+        }
+
 
         if (comment.imageUrl != null) {
-            Glide.with(mContext)
+            Glide.with(context)
                     .load(comment.imageUrl)
                     .crossFade()
-                    .into(holder.mCi_comment_image);
+                    .into(holder.ci_comment_image);
         }
 
 
@@ -195,28 +215,33 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
     @Override
     public int getItemCount() {
-        return mComments.size();
+        emptyCommentListListener.getCommentListSize(comments.size());
+        return comments.size();
     }
 
     public void cleanupListener() {
-        if (mChildEventListener != null) {
-            mDatabaseReference.removeEventListener(mChildEventListener);
+        if (childEventListener != null) {
+            databaseReference.removeEventListener(childEventListener);
         }
+    }
+
+    public interface EmptyCommentListListener {
+        void getCommentListSize(int size);
     }
 
     class CommentViewHolder extends RecyclerView.ViewHolder {
 
         @BindView(R.id.ci_comment_image)
-        CircleImageView mCi_comment_image;
+        CircleImageView ci_comment_image;
         @BindView(R.id.tv_comment)
-        TextView mTv_comment;
+        TextView tv_comment;
         @BindView(R.id.tv_name)
-        TextView mTv_name;
+        TextView tv_name;
 
         @BindView(R.id.iv_popUp_menu)
-        ImageView mIv_popUp_menu;
+        ImageView iv_popUp_menu;
 
-        public CommentViewHolder(View itemView) {
+        CommentViewHolder(View itemView) {
             super(itemView);
 
             ButterKnife.bind(this, itemView);

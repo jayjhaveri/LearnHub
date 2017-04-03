@@ -19,6 +19,7 @@ import android.view.GestureDetector;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -52,67 +53,77 @@ import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekBarChangeListener,
-        Toolbar.OnMenuItemClickListener, ExoPlayerManager.AfterGetDuration {
+        Toolbar.OnMenuItemClickListener, CommentAdapter.EmptyCommentListListener {
 
     public static final String EXTRA_POST_KEY = "post_key";
     public static final String EXTRA_VIDEO_DETAIL = "videoDetail_extra";
     private static final int RC_SIGN_IN_LIKE = 102;
     private static final int RC_SIGN_IN_DISLIKE = 103;
+    private static final int RC_SIGN_IN_COMMENT = 104;
     private static final int PICK_FILE_REQUEST_CODE = 2;
     private static final String TAG = VideoDetail.class.getSimpleName();
-    public FirebaseAuth mAuth;
-    public DatabaseReference mCommentsRef;
-    Toolbar toolbar;
+    public FirebaseAuth firebaseAuth;
+    public DatabaseReference commentsRef;
     //Database Reference
-    DatabaseReference mDatabase;
+    DatabaseReference databaseReference;
     //VideoDetail Instance from VideoListFragment
-    VideoDetail mVideoDetail;
+    VideoDetail videoDetail;
     //Boolean for fullscreen
     boolean isFullScreen = false;
     //
-    boolean isContainKey = false;
     @BindView(R.id.coordinator)
-    CoordinatorLayout mCoordinatorLayout;
+    CoordinatorLayout coordinatorLayout;
     @BindView(R.id.ns_nestedView)
-    NestedScrollView mNs_nestedView;
+    NestedScrollView nv_nestedView;
     @BindView(R.id.iv_like)
-    ImageView mIv_like;
+    ImageView iv_like;
     @BindView(R.id.tv_like_count)
-    TextView mTv_like_count;
+    TextView tv_like_count;
     @BindView(R.id.tv_dislike_count)
-    TextView mTv_dislike_count;
+    TextView tv_dislike_count;
     @BindView(R.id.iv_dislike)
-    ImageView mIv_dislike;
+    ImageView iv_dislike;
     @BindView(R.id.ci_uploader_image)
-    CircleImageView mCi_uploader_image;
+    CircleImageView ci_uploader_image;
     @BindView(R.id.tv_video_title)
-    TextView mTv_video_title;
+    TextView tv_video_title;
     @BindView(R.id.tv_uploader_name)
-    TextView mTv_uplader_name;
+    TextView tv_uploader_name;
     @BindView(R.id.detailTopView)
     View topView;
     @BindView(R.id.tv_video_description)
-    TextView mTv_video_description;
+    TextView tv_video_description;
     @BindView(R.id.ci_user_image)
-    CircleImageView mCi_user_image;
+    CircleImageView ci_user_image;
     @BindView(R.id.rv_comments)
-    RecyclerView mRv_comments;
+    RecyclerView rv_comments;
     @BindView(R.id.tv_comment_here)
-    TextView mTv_comment_here;
+    TextView tv_comment_here;
     @BindView(R.id.detail_text_content_layout)
-    RelativeLayout mDetail_text;
+    RelativeLayout detail_text;
     //view count
     @BindView(R.id.tv_view_count)
-    TextView mTv_view_count;
-    TextView mTv_video_title_control;
-    ImageButton mExoFullscreen;
+    TextView tv_view_count;
+    //Category Button
+    @BindView(R.id.bt_category)
+    Button bt_category;
+    //TextView no comment
+    @BindView(R.id.tv_no_comments)
+    TextView tv_no_comments;
+
+    //Toolbar
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+
+    TextView tv_video_title_control;
+    ImageButton ib_exo_fullscreen;
     private GestureDetector gestureDetector;
     //Database references
     private DatabaseReference mGlobalVideoRef;
-    private DatabaseReference mUserVideoRef;
-    private DatabaseReference mCategoryRef;
+    private DatabaseReference userVideoRef;
+    private DatabaseReference categoryRef;
     //
-    private String mPostKey;
+    private String postKey;
 
     //duration for update views
     private long VIEW_DURATION = 0;
@@ -124,16 +135,31 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
     private View decorView;
 
     //Adapter
-    private CommentAdapter mAdapter;
+    private CommentAdapter commentAdapter;
 
 
     @OnClick(R.id.tv_comment_here)
-    public void activeEditText() {
-        if (mAuth.getCurrentUser() != null) {
-            CommentFragment fragment = CommentFragment.newInstance(mAuth.getCurrentUser().getPhotoUrl().toString());
+    public void onCommentClick() {
+        if (firebaseAuth.getCurrentUser() != null) {
+            CommentFragment fragment = CommentFragment.newInstance(firebaseAuth.getCurrentUser().getPhotoUrl().toString());
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             fragment.show(transaction, "dialog");
+        } else {
+            startActivityForResult(
+                    AuthUI.getInstance()
+                            .createSignInIntentBuilder()
+                            .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                            .build(),
+                    RC_SIGN_IN_COMMENT
+            );
         }
+    }
+
+    @OnClick(R.id.bt_category)
+    public void onCategoryClick() {
+        Intent intent = new Intent(this, CategoryActivity.class);
+        intent.putExtra("name", videoDetail.category);
+        startActivity(intent);
     }
 
     @Override
@@ -144,50 +170,48 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
         setContentView(R.layout.activity_video_detail);
 
         ButterKnife.bind(this);
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        databaseReference = FirebaseDatabase.getInstance().getReference();
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         // Get post key from intent
-        mPostKey = getIntent().getStringExtra(EXTRA_POST_KEY);
-        mVideoDetail = (VideoDetail) getIntent().getSerializableExtra(EXTRA_VIDEO_DETAIL);
-        isContainKey = getIntent().getBooleanExtra("keyLike", false);
-
+        postKey = getIntent().getStringExtra(EXTRA_POST_KEY);
+        videoDetail = (VideoDetail) getIntent().getSerializableExtra(EXTRA_VIDEO_DETAIL);
 
         HttpProxyCacheServer proxy = BaseApplication.getProxy(this);
-        String proxyUrl = proxy.getProxyUrl(mVideoDetail.videoUrl);
+        String proxyUrl = proxy.getProxyUrl(videoDetail.videoUrl);
         playerView = (SimpleExoPlayerView) findViewById(R.id.player_view);
         SimpleExoPlayerView previewPlayerView
                 = (SimpleExoPlayerView) findViewById(R.id.previewPlayerView);
         seekBar = (PreviewSeekBar) playerView.findViewById(R.id.exo_progress);
         seekBarLayout = (PreviewSeekBarLayout) findViewById(R.id.previewSeekBarLayout);
-        mExoFullscreen = (ImageButton) findViewById(R.id.exo_fullscreen);
+        ib_exo_fullscreen = (ImageButton) findViewById(R.id.exo_fullscreen);
         seekBarLayout.setTintColorResource(R.color.colorPrimary);
 
-        mTv_video_title_control = (TextView) playerView.findViewById(R.id.tv_video_title_control);
-        mTv_video_title_control.setText(mVideoDetail.title);
-
-
+        tv_video_title_control = (TextView) playerView.findViewById(R.id.tv_video_title_control);
+        tv_video_title_control.setText(videoDetail.title);
 
 
         seekBar.addOnSeekBarChangeListener(this);
         exoPlayerManager = new ExoPlayerManager(playerView, previewPlayerView, seekBarLayout,
-                proxyUrl, this);
+                proxyUrl);
 
         //set like counter
-        mTv_like_count.setText(String.valueOf(mVideoDetail.likeCount));
+        tv_like_count.setText(String.valueOf(videoDetail.likeCount));
 
         //Set dislikecount
-        mTv_dislike_count.setText(String.valueOf(mVideoDetail.disLikeCount));
+        tv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
 
         //set video title
-        mTv_video_title.setText(mVideoDetail.title);
+        tv_video_title.setText(videoDetail.title);
 
         //set uplader name
-        mTv_uplader_name.setText(mVideoDetail.author);
+        tv_uploader_name.setText(videoDetail.author);
 
-        mTv_video_description.setText(mVideoDetail.body);
+        tv_video_description.setText(videoDetail.body);
+
+        //set category name
+        bt_category.setText(videoDetail.category);
 
         topView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -209,8 +233,8 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
 
         //Set uploader image
         Glide.with(this)
-                .load(mVideoDetail.profileImage)
-                .into(mCi_uploader_image);
+                .load(videoDetail.profileImage)
+                .into(ci_uploader_image);
 
         //Detect full screen
         requestFullScreenIfLandscape();
@@ -223,24 +247,24 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
         initLikeListener();
 
 
-        if (mAuth.getCurrentUser() != null) {
-            Uri photoUri = mAuth.getCurrentUser().getPhotoUrl();
+        if (firebaseAuth.getCurrentUser() != null) {
+            Uri photoUri = firebaseAuth.getCurrentUser().getPhotoUrl();
             Glide.with(this)
                     .load(photoUri)
-                    .into(mCi_user_image);
+                    .into(ci_user_image);
 
-            if (mVideoDetail.likes.containsKey(getUid())) {
+            if (videoDetail.likes.containsKey(getUid())) {
                 Log.d(TAG, "liked");
-                mIv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
+                iv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
             } else {
-                mIv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
+                iv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
             }
 
-            if (mVideoDetail.disLikes.containsKey(getUid())) {
+            if (videoDetail.disLikes.containsKey(getUid())) {
                 Log.d(TAG, "liked");
-                mIv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
+                iv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
             } else {
-                mIv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
+                iv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
             }
         }
 
@@ -249,18 +273,17 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
         gestureDetector.setIsLongpressEnabled(false);
         playerView.setOnTouchListener(listener);
 
-        mAdapter = new CommentAdapter(this, mCommentsRef);
+        commentAdapter = new CommentAdapter(VideoDetailActivity.this, commentsRef, this);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setReverseLayout(true);
-        mRv_comments.setLayoutManager(linearLayoutManager);
-        mRv_comments.setAdapter(mAdapter);
-
+        rv_comments.setLayoutManager(linearLayoutManager);
+        rv_comments.setAdapter(commentAdapter);
         //get totla duration
-        mTv_view_count.setText(getString(R.string.views_string, String.valueOf(mVideoDetail.views)));
+        tv_view_count.setText(getString(R.string.views_string, String.valueOf(videoDetail.views)));
     }
 
     /*private void videoComment() {
-        if (mAuth.getCurrentUser() != null) {
+        if (firebaseAuth.getCurrentUser() != null) {
 
             FirebaseDatabase.getInstance().getReference().child("users").child(getUid())
                     .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -269,11 +292,11 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                             // Get user information
 
                             // Create new comment object
-                            String author = mAuth.getCurrentUser().getDisplayName();
+                            String author = firebaseAuth.getCurrentUser().getDisplayName();
                             String profileImage = null;
-                            if (mAuth.getCurrentUser().getPhotoUrl() != null) {
+                            if (firebaseAuth.getCurrentUser().getPhotoUrl() != null) {
 
-                                profileImage = mAuth.getCurrentUser().getPhotoUrl().toString();
+                                profileImage = firebaseAuth.getCurrentUser().getPhotoUrl().toString();
                             }
 
                             String commentText = mEt_comment.getText().toString();
@@ -281,7 +304,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                             Comment comment = new Comment(getUid(), author, commentText, profileImage);
 
                             // Push the comment, it will appear in the list
-                            mCommentsRef.push().setValue(comment);
+                            commentsRef.push().setValue(comment);
 
                             // Clear the field
                             mEt_comment.setText(null);
@@ -297,16 +320,16 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
 
     private void initLikeListener() {
 
-        mIv_like.setOnClickListener(new View.OnClickListener() {
+        iv_like.setOnClickListener(new View.OnClickListener() {
 
 
             @Override
             public void onClick(View view) {
 
-                if (mAuth.getCurrentUser() != null) {
+                if (firebaseAuth.getCurrentUser() != null) {
                     onLikeClicked(mGlobalVideoRef);
-                    onLikeClicked(mUserVideoRef);
-                    onLikeClicked(mCategoryRef);
+                    onLikeClicked(userVideoRef);
+                    onLikeClicked(categoryRef);
 
                 } else {
                     startActivityForResult(
@@ -320,13 +343,13 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
             }
         });
 
-        mIv_dislike.setOnClickListener(new View.OnClickListener() {
+        iv_dislike.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mAuth.getCurrentUser() != null) {
+                if (firebaseAuth.getCurrentUser() != null) {
                     onDisLikeClicked(mGlobalVideoRef);
-                    onDisLikeClicked(mUserVideoRef);
-                    onDisLikeClicked(mCategoryRef);
+                    onDisLikeClicked(userVideoRef);
+                    onDisLikeClicked(categoryRef);
 
                 } else {
                     startActivityForResult(
@@ -342,7 +365,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
     }
 
     private void initExoFullScreenListener() {
-        mExoFullscreen.setOnClickListener(new View.OnClickListener() {
+        ib_exo_fullscreen.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (!isFullScreen) {
@@ -365,11 +388,11 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
     }
 
     private void initDatabaseReferences() {
-        mAuth = FirebaseAuth.getInstance();
-        mGlobalVideoRef = mDatabase.child("videos").child(mPostKey);
-        mUserVideoRef = mDatabase.child("user-videos").child(mVideoDetail.uid).child(mPostKey);
-        mCategoryRef = mDatabase.child("categories").child(mVideoDetail.category).child(mPostKey);
-        mCommentsRef = mDatabase.child("video-comments").child(mPostKey);
+        firebaseAuth = FirebaseAuth.getInstance();
+        mGlobalVideoRef = databaseReference.child("videos").child(postKey);
+        userVideoRef = databaseReference.child("user-videos").child(videoDetail.uid).child(postKey);
+        categoryRef = databaseReference.child("categories").child(videoDetail.category).child(postKey);
+        commentsRef = databaseReference.child("video-comments").child(postKey);
     }
 
     public void viewsCount(DatabaseReference videoRef) {
@@ -387,7 +410,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                     @Override
                     public void run() {
                         //set view counter
-                        mTv_view_count.setText(getString(R.string.views_string, String.valueOf(videoDetail.views)));
+                        tv_view_count.setText(getString(R.string.views_string, String.valueOf(videoDetail.views)));
                     }
                 });
 
@@ -421,10 +444,10 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                         @Override
                         public void run() {
                             //set like counter
-                            mTv_like_count.setText(String.valueOf(videoDetail.likeCount));
+                            tv_like_count.setText(String.valueOf(videoDetail.likeCount));
                             //Set dislikecount
-                            mTv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
-                            mIv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
+                            tv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
+                            iv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
                         }
                     });
                 } else {
@@ -436,10 +459,10 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                             @Override
                             public void run() {
                                 //set like counter
-                                mTv_like_count.setText(String.valueOf(videoDetail.likeCount));
+                                tv_like_count.setText(String.valueOf(videoDetail.likeCount));
                                 //Set dislikecount
-                                mTv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
-                                mIv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
+                                tv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
+                                iv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
                             }
                         });
                     }
@@ -450,10 +473,10 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                         @Override
                         public void run() {
                             //set like counter
-                            mTv_like_count.setText(String.valueOf(videoDetail.likeCount));
+                            tv_like_count.setText(String.valueOf(videoDetail.likeCount));
                             //Set dislikecount
-                            mTv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
-                            mIv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
+                            tv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
+                            iv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
                         }
                     });
                 }
@@ -487,10 +510,10 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                         @Override
                         public void run() {
                             //set like counter
-                            mTv_like_count.setText(String.valueOf(videoDetail.likeCount));
+                            tv_like_count.setText(String.valueOf(videoDetail.likeCount));
                             //Set dislikecount
-                            mTv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
-                            mIv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
+                            tv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
+                            iv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
                         }
                     });
                 } else {
@@ -501,10 +524,10 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                             @Override
                             public void run() {
                                 //set like counter
-                                mTv_like_count.setText(String.valueOf(videoDetail.likeCount));
+                                tv_like_count.setText(String.valueOf(videoDetail.likeCount));
                                 //Set dislikecount
-                                mTv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
-                                mIv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
+                                tv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
+                                iv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
                             }
                         });
                     }
@@ -514,10 +537,10 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                         @Override
                         public void run() {
                             //set like counter
-                            mTv_like_count.setText(String.valueOf(videoDetail.likeCount));
+                            tv_like_count.setText(String.valueOf(videoDetail.likeCount));
                             //Set dislikecount
-                            mTv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
-                            mIv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
+                            tv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
+                            iv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
                         }
                     });
                 }
@@ -543,15 +566,17 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
 
         if (resultCode == RESULT_OK) {
             if (requestCode == RC_SIGN_IN_LIKE) {
-                mIv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
+                iv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
                 onLikeClicked(mGlobalVideoRef);
-                onLikeClicked(mUserVideoRef);
-                onLikeClicked(mCategoryRef);
+                onLikeClicked(userVideoRef);
+                onLikeClicked(categoryRef);
             } else if (requestCode == RC_SIGN_IN_DISLIKE) {
-                mIv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
+                iv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
                 onDisLikeClicked(mGlobalVideoRef);
-                onDisLikeClicked(mUserVideoRef);
-                onDisLikeClicked(mCategoryRef);
+                onDisLikeClicked(userVideoRef);
+                onDisLikeClicked(categoryRef);
+            } else if (requestCode == RC_SIGN_IN_COMMENT) {
+                onCommentClick();
             }
         }
     }
@@ -580,7 +605,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
     public void onStop() {
         super.onStop();
         exoPlayerManager.onStop();
-        mAdapter.cleanupListener();
+        commentAdapter.cleanupListener();
     }
 
     @Override
@@ -622,7 +647,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
 
     private void requestFullScreenIfLandscape() {
         if (getResources().getBoolean(R.bool.landscape)) {
-            mCoordinatorLayout.setFitsSystemWindows(false);
+            coordinatorLayout.setFitsSystemWindows(false);
             getWindow().getDecorView().setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LOW_PROFILE
                             | View.SYSTEM_UI_FLAG_FULLSCREEN
@@ -630,15 +655,15 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
             isFullScreen = true;
             getSupportActionBar().hide();
-            mNs_nestedView.setVisibility(View.GONE);
+            nv_nestedView.setVisibility(View.GONE);
             playerView.setLayoutParams(new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.MATCH_PARENT));
             Toast.makeText(this, "landscape", Toast.LENGTH_SHORT).show();
         } else {
             getSupportActionBar().show();
             isFullScreen = false;
             getWindow().getDecorView().setSystemUiVisibility(0);
-            mCoordinatorLayout.setFitsSystemWindows(true);
-            mNs_nestedView.setVisibility(View.VISIBLE);
+            coordinatorLayout.setFitsSystemWindows(true);
+            nv_nestedView.setVisibility(View.VISIBLE);
             CoordinatorLayout.LayoutParams layoutParams = new CoordinatorLayout.LayoutParams(CoordinatorLayout.LayoutParams.MATCH_PARENT,
                     (int) getResources().getDimension(R.dimen.playerView_default));
 
@@ -661,21 +686,6 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
     }
 
     @Override
-    public void runHandler(long total_duration) {
-        Log.d(TAG, "" + total_duration);
-        VIEW_DURATION = (total_duration * 30) / 100;
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                viewsCount(mCategoryRef);
-                viewsCount(mGlobalVideoRef);
-                viewsCount(mUserVideoRef);
-            }
-        }, VIEW_DURATION);
-    }
-
-    @Override
     public void onBackPressed() {
         if (isFullScreen) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT);
@@ -691,6 +701,17 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
         } else {
             Log.d("videoDetail", "back");
             super.onBackPressed();
+        }
+    }
+
+    @Override
+    public void getCommentListSize(int size) {
+        if (size <= 0) {
+            rv_comments.setVisibility(View.INVISIBLE);
+            tv_no_comments.setVisibility(View.VISIBLE);
+        } else {
+            rv_comments.setVisibility(View.VISIBLE);
+            tv_no_comments.setVisibility(View.GONE);
         }
     }
 

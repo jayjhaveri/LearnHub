@@ -143,7 +143,7 @@ public class CommentFragment extends DialogFragment {
     }
 
     private void videoComment() {
-        if (parent.mAuth.getCurrentUser() != null) {
+        if (parent.firebaseAuth.getCurrentUser() != null) {
 
             FirebaseDatabase.getInstance().getReference().child("users").child(parent.getUid())
                     .addListenerForSingleValueEvent(new ValueEventListener() {
@@ -152,11 +152,11 @@ public class CommentFragment extends DialogFragment {
                             // Get user information
 
                             // Create new comment object
-                            String author = parent.mAuth.getCurrentUser().getDisplayName();
+                            String author = parent.firebaseAuth.getCurrentUser().getDisplayName();
                             String profileImage = null;
-                            if (parent.mAuth.getCurrentUser().getPhotoUrl() != null) {
+                            if (parent.firebaseAuth.getCurrentUser().getPhotoUrl() != null) {
 
-                                profileImage = parent.mAuth.getCurrentUser().getPhotoUrl().toString();
+                                profileImage = parent.firebaseAuth.getCurrentUser().getPhotoUrl().toString();
                             }
 
                             String commentText = mEt_comment.getText().toString();
@@ -164,7 +164,7 @@ public class CommentFragment extends DialogFragment {
                             Comment comment = new Comment(parent.getUid(), author, commentText, profileImage);
 
                             // Push the comment, it will appear in the list
-                            parent.mCommentsRef.push().setValue(comment);
+                            parent.commentsRef.push().setValue(comment);
 
                             // Clear the field
                             mEt_comment.setText(null);

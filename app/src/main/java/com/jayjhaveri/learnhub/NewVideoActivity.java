@@ -10,16 +10,18 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.v4.app.NotificationCompat;
-import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.AppCompatSpinner;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
@@ -28,7 +30,7 @@ import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
 import com.google.android.exoplayer2.extractor.ExtractorsFactory;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.trackselection.AdaptiveVideoTrackSelection;
+import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
@@ -63,27 +65,27 @@ public class NewVideoActivity extends BaseActivity {
 
     final int RC_IMAGE = 201;
     @BindView(R.id.vv_new)
-    SimpleExoPlayerView mVv_new;
+    SimpleExoPlayerView playerView;
     //EditText for VideoTitle
     @BindView(R.id.et_title)
-    TextInputEditText mEt_title;
+    TextInputEditText et_title;
 
     @BindView(R.id.et_desc)
-    TextInputEditText mEt_desc;
+    TextInputEditText et_desc;
 
     //ImageButton for upload thumbnail
-    @BindView(R.id.ib_upload_image)
-    AppCompatImageButton mIbUploadImageButton;
+    @BindView(R.id.iv_upload_image)
+    ImageView iv_upload_image;
 
     @BindView(R.id.spinner_category)
-    AppCompatSpinner mSpinner_category;
+    AppCompatSpinner spinnerCategory;
 
     //Firebase Reference
-    FirebaseStorage mStorage;
-    StorageReference mStorageRef;
-    StorageReference mVideoRef;
-    StorageReference mImageRef;
-    FirebaseAuth mAuth;
+    FirebaseStorage firebaseStorage;
+    StorageReference storageRef;
+    StorageReference videoUploadRef;
+    StorageReference imageUploadRef;
+    FirebaseAuth firebaseAuth;
     //Uri from Upload activity
     Uri videoUri;
     //Uri for image
@@ -96,10 +98,10 @@ public class NewVideoActivity extends BaseActivity {
     String mSelectedCategory;
     //Notification progress
     NotificationManager mNotifyManager;
-    int mId = 1;
-    private SimpleExoPlayer mPlayer;
-    private DatabaseReference mDatabase;
-    private NotificationCompat.Builder mBuilder;
+    int notificationId = 1;
+    private SimpleExoPlayer exoPlayer;
+    private DatabaseReference database;
+    private NotificationCompat.Builder notificationBuilder;
     private boolean saved = false;
 
     @Override
@@ -112,22 +114,23 @@ public class NewVideoActivity extends BaseActivity {
         ButterKnife.bind(this);
         if (getIntent() != null) {
             videoUri = Uri.parse(getIntent().getStringExtra("uri"));
+            Log.d("NewVideo", "VideoUri" + videoUri);
         }
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         loadVideoPreview();
 
-        mStorage = FirebaseStorage.getInstance();
-        mStorageRef = mStorage.getReference();
-        mVideoRef = mStorageRef.child("videos/" + videoUri.getLastPathSegment());
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageRef = firebaseStorage.getReference();
+        videoUploadRef = storageRef.child("videos/" + videoUri.getLastPathSegment());
 
         //Database Reference
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        database = FirebaseDatabase.getInstance().getReference();
 
         //Auth reference
-        mAuth = FirebaseAuth.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
 
-        mIbUploadImageButton.setOnClickListener(new View.OnClickListener() {
+        iv_upload_image.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 openImageIntent();
@@ -145,9 +148,9 @@ public class NewVideoActivity extends BaseActivity {
 // Specify the layout to use when the list of choices appears
 //        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 // Apply the adapter to the spinner
-        mSpinner_category.setAdapter(adapter);
+        spinnerCategory.setAdapter(adapter);
 
-        mSpinner_category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 Category category = MainActivity.categoryList.get(i);
@@ -166,19 +169,19 @@ public class NewVideoActivity extends BaseActivity {
         Handler mainHandler = new Handler();
         DefaultBandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         TrackSelection.Factory videoTrackSelectionFactory =
-                new AdaptiveVideoTrackSelection.Factory(bandwidthMeter);
+                new AdaptiveTrackSelection.Factory(bandwidthMeter);
         TrackSelector trackSelector =
                 new DefaultTrackSelector(videoTrackSelectionFactory);
 
         // 2. Create a default LoadControl
         LoadControl loadControl = new DefaultLoadControl();
 
-        // 3. Create the mPlayer
-        mPlayer =
+        // 3. Create the exoPlayer
+        exoPlayer =
                 ExoPlayerFactory.newSimpleInstance(this, trackSelector, loadControl);
 
-        // Bind the mPlayer to the view.
-        mVv_new.setPlayer(mPlayer);
+        // Bind the exoPlayer to the view.
+        playerView.setPlayer(exoPlayer);
 
         // Measures bandwidth during playback. Can be null if not required.
 
@@ -190,10 +193,10 @@ public class NewVideoActivity extends BaseActivity {
 // This is the MediaSource representing the media to be played.
         MediaSource videoSource = new ExtractorMediaSource(videoUri,
                 dataSourceFactory, extractorsFactory, null, null);
-// Prepare the mPlayer with the source.
-        mPlayer.prepare(videoSource);
+// Prepare the exoPlayer with the source.
+        exoPlayer.prepare(videoSource);
 
-        mPlayer.setPlayWhenReady(true);
+        exoPlayer.setPlayWhenReady(true);
 
     }
 
@@ -225,6 +228,9 @@ public class NewVideoActivity extends BaseActivity {
         if (resultCode == RESULT_OK) {
             if (requestCode == RC_IMAGE) {
                 imageUri = data.getData();
+                Glide.with(this)
+                        .load(imageUri)
+                        .into(iv_upload_image);
             }
         }
     }
@@ -232,42 +238,41 @@ public class NewVideoActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mPlayer.setPlayWhenReady(false);
+        exoPlayer.setPlayWhenReady(false);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mPlayer.setPlayWhenReady(true);
+        exoPlayer.setPlayWhenReady(true);
     }
 
     private void uploadVideo() {
-        mStorage = FirebaseStorage.getInstance();
-        mStorageRef = mStorage.getReference();
-
-        mVideoRef = mStorageRef.child("videos/" + videoUri.getLastPathSegment());
-        mImageRef = mStorageRef.child("images/" + imageUri.getLastPathSegment());
+        firebaseStorage = FirebaseStorage.getInstance();
+        storageRef = firebaseStorage.getReference();
+        videoUploadRef = storageRef.child("videos/" + videoUri.getLastPathSegment());
+        imageUploadRef = storageRef.child("images/" + imageUri.getLastPathSegment());
 
         mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        mBuilder = new NotificationCompat.Builder(this);
+        notificationBuilder = new NotificationCompat.Builder(this);
 
 
-        mBuilder.setContentTitle("Upload")
+        notificationBuilder.setContentTitle("Upload")
                 .setContentText("Upload in progress")
                 .setSmallIcon(android.R.drawable.stat_sys_upload);
 
         Utilities.writeStringPreference(this, getString(R.string.video_uri), videoUri.toString());
 
-        final String title = mEt_title.getText().toString();
-        final String desc = mEt_desc.getText().toString();
+        final String title = et_title.getText().toString();
+        final String desc = et_desc.getText().toString();
 
         if (TextUtils.isEmpty(title)) {
-            mEt_title.setError("Required");
+            et_title.setError("Required");
             return;
         }
 
         if (TextUtils.isEmpty(desc)) {
-            mEt_desc.setError("Required");
+            et_desc.setError("Required");
             return;
         }
 
@@ -283,7 +288,7 @@ public class NewVideoActivity extends BaseActivity {
                     public void run() {
 
 
-                        final UploadTask uploadTaskImage = mImageRef.putFile(imageUri);
+                        final UploadTask uploadTaskImage = imageUploadRef.putFile(imageUri);
 
 
                         uploadTaskImage.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -293,10 +298,10 @@ public class NewVideoActivity extends BaseActivity {
                             }
                         });
 
-                        final UploadTask uploadTaskVideo = mVideoRef.putFile(videoUri);
+                        final UploadTask uploadTaskVideo = videoUploadRef.putFile(videoUri);
                         ;
 
-                        mNotifyManager.notify(mId, mBuilder.build());
+                        mNotifyManager.notify(notificationId, notificationBuilder.build());
                         uploadTaskVideo.addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
@@ -308,18 +313,18 @@ public class NewVideoActivity extends BaseActivity {
                                 downloadVideoUrl = taskSnapshot.getDownloadUrl();
                                 Utilities.deleteStringPreference(NewVideoActivity.this, getString(R.string.session_uri));
                                 Utilities.deleteStringPreference(NewVideoActivity.this, getString(R.string.video_uri));
-                                mBuilder.setContentText("Upload complete");
+                                notificationBuilder.setContentText("Upload complete");
                                 // Removes the progress bar
-                                mBuilder.setProgress(0, 0, false);
-                                mBuilder.setSmallIcon(android.R.drawable.stat_sys_upload_done);
-                                mNotifyManager.notify(mId, mBuilder.build());
+                                notificationBuilder.setProgress(0, 0, false);
+                                notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_upload_done);
+                                mNotifyManager.notify(notificationId, notificationBuilder.build());
 
                                 //Firebase user
-                                FirebaseUser user = mAuth.getCurrentUser();
+                                FirebaseUser user = firebaseAuth.getCurrentUser();
                                 String profileImage = user.getPhotoUrl().toString();
 
                                 VideoDetail videoDetail;
-                                String key = mDatabase.child("videos").push().getKey();
+                                String key = database.child("videos").push().getKey();
                                 if (profileImage != null) {
                                      videoDetail = new VideoDetail(getUid(),
                                             user.getDisplayName(),
@@ -350,7 +355,7 @@ public class NewVideoActivity extends BaseActivity {
                                 childUpdates.put("/videos/" + key, videoValues);
                                 childUpdates.put("/user-videos/" + userId + "/" + key, videoValues);
                                 childUpdates.put("/categories/" + mSelectedCategory + "/" + key, videoValues);
-                                mDatabase.updateChildren(childUpdates);
+                                database.updateChildren(childUpdates);
 
                             }
                         }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -366,8 +371,8 @@ public class NewVideoActivity extends BaseActivity {
                                             sessionUri.toString());
                                 }
                                 double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                                mBuilder.setProgress(100, (int) progress, false);
-                                mNotifyManager.notify(mId, mBuilder.build());
+                                notificationBuilder.setProgress(100, (int) progress, false);
+                                mNotifyManager.notify(notificationId, notificationBuilder.build());
                             }
                         });
 

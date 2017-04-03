@@ -161,7 +161,6 @@
                     android:layout_marginStart="12dp"
                     android:layout_marginTop="12dp"
                     android:layout_weight=".7"
-                    android:text="Title"
                     android:textAppearance="?android:attr/textAppearanceLarge"
                     android:textSize="@dimen/video_item_detail_title_text_size" />
 
@@ -174,7 +173,9 @@
                     android:layout_marginRight="10dp"
                     android:layout_marginStart="10dp"
                     android:layout_marginTop="8dp"
+                    android:contentDescription="@string/expand_detail_arrow_down"
                     android:src="@drawable/arrow_down" />
+
 
             </LinearLayout>
 
@@ -218,7 +219,6 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/detail_upload_date_view"
                     android:layout_marginTop="3dp"
-                    android:text="Description............."
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textSize="@dimen/video_item_detail_description_text_size" />
             </RelativeLayout>
@@ -232,7 +232,8 @@
                 android:layout_below="@+id/detailExtraView"
                 android:layout_marginLeft="12dp"
                 android:layout_marginStart="12dp"
-                android:layout_marginTop="5dp">
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
 
                 <ImageView
                     android:id="@+id/iv_like"
@@ -248,7 +249,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="2dp"
                     android:layout_marginStart="2dp"
-                    android:text="200"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textSize="@dimen/video_item_detail_likes_text_size" />
 
@@ -263,15 +263,38 @@
                     android:src="@drawable/ic_thumb_up_white_24px"
                     android:tint="@color/darkColor" />
 
+
                 <TextView
                     android:id="@+id/tv_dislike_count"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="2dp"
                     android:layout_marginStart="2dp"
-                    android:text="100"
+                    android:layout_weight="2"
                     android:textAppearance="?android:attr/textAppearanceMedium"
-                    android:textSize="@dimen/video_item_detail_likes_text_size" />
+                    android:textSize="@dimen/video_item_detail_likes_text_size"
+                    tools:text="2" />
+
+                <ImageView
+                    android:id="@+id/iv_file_download"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:contentDescription="@string/detail_dislikes_img_view_description"
+                    android:src="@android:drawable/stat_sys_download_done"
+                    android:tint="@color/darkColor" />
+
+                <Button
+                    android:id="@+id/bt_category"
+                    android:layout_width="80dp"
+                    android:layout_height="30dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginRight="8dp"
+                    android:background="@drawable/button_background"
+                    android:text="Category"
+                    android:textColor="@android:color/white"
+                    android:textSize="14sp" />
             </LinearLayout>
 
             <FrameLayout
@@ -313,10 +336,12 @@
                         android:layout_marginStart="28dp"
                         android:layout_toEndOf="@+id/ci_uploader_image"
                         android:layout_toRightOf="@+id/ci_uploader_image"
+                        android:maxLines="2"
                         android:text="Uploader"
                         android:textAppearance="?android:attr/textAppearanceLarge"
                         android:textSize="@dimen/video_item_detail_uploader_text_size"
                         android:textStyle="bold" />
+
 
                     <View
                         android:layout_width="match_parent"
@@ -392,7 +417,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_weight="2"
-                            android:text="Write comment here"
+                            android:text="@string/write_comment_video_detail"
                             android:textSize="18sp" />
 
 
@@ -403,10 +428,41 @@
                         android:layout_height="1px"
                         android:background="#000" />
 
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/rv_comments"
+                    <TextView
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="16dp"
+                        android:text="Comments"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1px"
+                        android:background="#000" />
+
+                    <FrameLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rv_comments"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content" />
+
+                        <TextView
+                            android:id="@+id/tv_no_comments"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_margin="16dp"
+                            android:gravity="center"
+                            android:text="@string/no_comments_yet"
+                            android:textSize="16sp"
+                            android:visibility="gone" />
+
+                    </FrameLayout>
+
 
                 </LinearLayout>
             </RelativeLayout>

@@ -23,4 +23,13 @@
     <string name="next_video_title">Next Video</string>
     <string name="similar_videos_btn_text">Similar videos</string>
     <string name="views_string">%s views</string>
+    <string name="expand_detail_arrow_down">Expand Detail</string>
+    <string name="exo_conterols_replay_desc">Replay</string>
+    <string name="exo_control_full_screen_description">Full Screen</string>
+    <string name="popup_menu_comment_description">Popup menu</string>
+    <string name="title_video_detail">Title</string>
+    <string name="write_comment_video_detail">Write comment here</string>
+    <string name="edit_menu_comment">Edit</string>
+    <string name="delete_menu_comment">Delete</string>
+    <string name="no_comments_yet">No comments yet</string>
 </resources>

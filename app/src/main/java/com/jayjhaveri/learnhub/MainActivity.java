@@ -12,9 +12,6 @@ import android.os.Parcelable;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -36,6 +33,7 @@ import com.jayjhaveri.learnhub.Fragments.HomeFragment;
 import com.jayjhaveri.learnhub.Fragments.MostPopularFragment;
 import com.jayjhaveri.learnhub.Fragments.MostRecentFragment;
 import com.jayjhaveri.learnhub.Utilities.Utilities;
+import com.jayjhaveri.learnhub.adapter.ViewPagerAdapter;
 import com.jayjhaveri.learnhub.model.Category;
 
 import java.util.ArrayList;
@@ -53,9 +51,9 @@ public class MainActivity extends BaseActivity {
     //Categories ArrayList
     public static List<Category> categoryList = new ArrayList<>();
     @BindView(R.id.main_view_pager)
-    ViewPager mViewPager;
+    ViewPager viewPagerMain;
     @BindView(R.id.main_tabs)
-    TabLayout mTabLayout;
+    TabLayout tabLayout;
     @BindView(R.id.fab)
     FloatingActionButton fab;
     private int currentItemForViewpager = 1;
@@ -110,12 +108,13 @@ public class MainActivity extends BaseActivity {
 
 
                 Uri selectedVideoUri = data.getData();
-                Log.d("Output", "" + selectedVideoUri);
 
                 retriever.setDataSource(this, selectedVideoUri);
 
                 String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                String extension = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
 
+                Log.d("Output", "" + extension.substring(extension.lastIndexOf("/") + 1));
                 long timeInMillisec = Long.parseLong(time );
 
                 if (timeInMillisec > 600000){
@@ -179,9 +178,9 @@ public class MainActivity extends BaseActivity {
             }
         });
 
-        setupViewPager(mViewPager);
-        mTabLayout.setupWithViewPager(mViewPager);
-        mViewPager.setCurrentItem(currentItemForViewpager);
+        setupViewPager(viewPagerMain);
+        tabLayout.setupWithViewPager(viewPagerMain);
+        viewPagerMain.setCurrentItem(currentItemForViewpager);
         loadCategoryList();
 
 
@@ -263,37 +262,5 @@ public class MainActivity extends BaseActivity {
                 }
             });
         }
-    }
-
-    public static class ViewPagerAdapter extends FragmentPagerAdapter {
-
-        private final List<Fragment> mFragmentList = new ArrayList<>();
-        private final List<String> mFragmentTitleList = new ArrayList<>();
-
-
-        public ViewPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            return mFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return mFragmentList.size();
-        }
-
-        public void addFragment(Fragment fragment, String title) {
-            mFragmentList.add(fragment);
-            mFragmentTitleList.add(title);
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            return mFragmentTitleList.get(position);
-        }
-
     }
 }

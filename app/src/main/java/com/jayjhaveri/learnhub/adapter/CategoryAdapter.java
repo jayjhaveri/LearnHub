@@ -22,27 +22,27 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
 
-    private List<Category> mCategoriesList;
-    private Context mContext;
-    private CategoryClickListener mCategoryClickListener;
+    private List<Category> categoryList;
+    private Context context;
+    private CategoryClickListener categoryClickListener;
 
     public CategoryAdapter(List<Category> categories, Context context, CategoryClickListener categoryClickListener) {
-        this.mCategoriesList = categories;
-        this.mContext = context;
-        this.mCategoryClickListener = categoryClickListener;
+        this.categoryList = categories;
+        this.context = context;
+        this.categoryClickListener = categoryClickListener;
     }
 
     @Override
     public CategoryViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        View itemView = LayoutInflater.from(mContext)
+        View itemView = LayoutInflater.from(context)
                 .inflate(R.layout.list_category, parent, false);
         return new CategoryViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(CategoryViewHolder holder, int position) {
-        Category category = mCategoriesList.get(position);
+        Category category = categoryList.get(position);
 
         holder.ci_category_image.setImageResource(category.getImageResource());
         holder.tv_category_name.setText(category.getCategoryName());
@@ -50,7 +50,11 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
     @Override
     public int getItemCount() {
-        return mCategoriesList.size();
+        return categoryList.size();
+    }
+
+    public interface CategoryClickListener {
+        public void onCategoryClick(String categoryName);
     }
 
     public class CategoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
@@ -70,12 +74,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
         @Override
         public void onClick(View view) {
-            Category category = mCategoriesList.get(getAdapterPosition());
-            mCategoryClickListener.onCategoryClick(category.getCategoryName());
+            Category category = categoryList.get(getAdapterPosition());
+            categoryClickListener.onCategoryClick(category.getCategoryName());
         }
-    }
-
-    public interface CategoryClickListener {
-        public void onCategoryClick(String categoryName);
     }
 }

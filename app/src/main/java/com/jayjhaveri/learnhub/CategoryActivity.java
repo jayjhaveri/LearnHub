@@ -11,7 +11,7 @@ import com.jayjhaveri.learnhub.Fragments.MostRecentFragment;
 
 public class CategoryActivity extends MainActivity {
 
-    public static String mCategoryName;
+    public static String categoryName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -20,9 +20,9 @@ public class CategoryActivity extends MainActivity {
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        mCategoryName = getIntent().getStringExtra("name");
+        categoryName = getIntent().getStringExtra("name");
 
-        getSupportActionBar().setTitle(mCategoryName);
+        getSupportActionBar().setTitle(categoryName);
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setVisibility(View.GONE);

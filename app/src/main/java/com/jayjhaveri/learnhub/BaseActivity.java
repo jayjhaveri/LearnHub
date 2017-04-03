@@ -1,5 +1,6 @@
 package com.jayjhaveri.learnhub;
 
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.support.v7.app.AppCompatActivity;
 
@@ -9,23 +10,24 @@ import com.google.firebase.auth.FirebaseAuth;
  * Created by ADMIN-PC on 14-03-2017.
  */
 
+@SuppressLint("Registered")
 public class BaseActivity extends AppCompatActivity {
 
-    private ProgressDialog mProgressDialog;
+    private ProgressDialog progressDialog;
 
     public void showProgressDialog() {
-        if (mProgressDialog == null) {
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setCancelable(false);
-            mProgressDialog.setMessage("Loading...");
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setCancelable(false);
+            progressDialog.setMessage("Loading...");
         }
 
-        mProgressDialog.show();
+        progressDialog.show();
     }
 
     public void hideProgressDialog() {
-        if (mProgressDialog != null && mProgressDialog.isShowing()) {
-            mProgressDialog.dismiss();
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
         }
     }
 

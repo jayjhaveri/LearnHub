@@ -34,17 +34,16 @@ public abstract class VideoListFragment extends Fragment {
     public static final String EXTRA_VIDEO_UID = "video_uid";
     private static final String TAG = "VideoListFragment";
     @BindView(R.id.rv_video_list)
-    RecyclerView mRecycler;
+    RecyclerView rv_video_list;
     // [END define_database_reference]
     // [START define_database_reference]
-    private DatabaseReference mDatabase;
-    private FirebaseStorage mStorage;
-    private StorageReference mImageReference;
+    private DatabaseReference databaseReference;
+    private FirebaseStorage firebaseStorage;
+    private StorageReference imageReference;
     private StorageReference mProfileImageReference;
-    private FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder> mAdapter;
-    private LinearLayoutManager mManager;
+    private FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder> firebaseRecyclerAdapter;
+    private LinearLayoutManager linearLayoutManager;
 
-    private boolean isContainsKey = false;
 
     public VideoListFragment() {}
 
@@ -54,10 +53,10 @@ public abstract class VideoListFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_all_video, container, false);
         ButterKnife.bind(this,rootView);
         //Firebase database reference
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mRecycler.setHasFixedSize(true);
+        databaseReference = FirebaseDatabase.getInstance().getReference();
+        rv_video_list.setHasFixedSize(true);
 
-        mStorage = FirebaseStorage.getInstance();
+        firebaseStorage = FirebaseStorage.getInstance();
 
         return rootView;
     }
@@ -66,23 +65,23 @@ public abstract class VideoListFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mManager = new LinearLayoutManager(getActivity());
-        mManager.setReverseLayout(true);
-        mManager.setStackFromEnd(true);
+        linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager.setReverseLayout(true);
+        linearLayoutManager.setStackFromEnd(true);
 
-        mRecycler.setLayoutManager(mManager);
+        rv_video_list.setLayoutManager(linearLayoutManager);
 
         // Set up FirebaseRecyclerAdapter with the Query
-        Query postsQuery = getQuery(mDatabase);
+        Query postsQuery = getQuery(databaseReference);
 
-        mAdapter = new FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder>(VideoDetail.class, R.layout.list_video,
+        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder>(VideoDetail.class, R.layout.list_video,
                 VideoViewHolder.class, postsQuery) {
             @Override
             protected void populateViewHolder(VideoViewHolder viewHolder, final VideoDetail model, final int position) {
                 final DatabaseReference videoRef = getRef(position);
 
 
-                mImageReference = mStorage.getReferenceFromUrl(model.imageUrl);
+                imageReference = firebaseStorage.getReferenceFromUrl(model.imageUrl);
                 final String videoKey = videoRef.getKey();
 
                 viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -95,11 +94,11 @@ public abstract class VideoListFragment extends Fragment {
                     }
                 });
 
-                viewHolder.bindToPost(getActivity(),model, mImageReference);
+                viewHolder.bindToPost(getActivity(), model, imageReference);
             }
         };
 
-        mRecycler.setAdapter(mAdapter);
+        rv_video_list.setAdapter(firebaseRecyclerAdapter);
 
     }
 
