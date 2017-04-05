@@ -8,4 +8,10 @@
     <color name="secondary_text">@color/darkColor</color>
 
     <color name="blue_like">#3F51B5</color>
+
+    <color name="duration_background_color">#AA000000</color>
+
+    <color name="duration_text_color">#EEFFFFFF</color>
+
+    <color name="player_text_color">#FFBEBEBE</color>
 </resources>

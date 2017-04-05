@@ -241,6 +241,10 @@ public class ExoPlayerManager implements ExoPlayer.EventListener {
             mPlayPauseFrame.setVisibility(View.GONE);
             exo_repeat.setVisibility(View.GONE);
             progressBar.setVisibility(View.VISIBLE);
+        } else {
+            mPlayPauseFrame.setVisibility(View.VISIBLE);
+            exo_repeat.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
         }
     }
 

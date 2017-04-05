@@ -74,5 +74,15 @@ dependencies {
 
     //Easy permissions
     compile 'pub.devrel:easypermissions:0.3.0'
+
+    //Pretty time for time formating
+    compile 'org.ocpsoft.prettytime:prettytime:4.0.1.Final'
+
+    //Navigation Drawer
+    compile('com.mikepenz:materialdrawer:5.8.2@aar') {
+        transitive = true
+    }
+    compile 'com.mikepenz:iconics-core:2.8.2@aar'
+    compile 'com.mikepenz:google-material-typeface:3.0.1.0.original@aar'
 }
 apply plugin: 'com.google.gms.google-services'

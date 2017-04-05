@@ -2,11 +2,14 @@ package com.jayjhaveri.learnhub.Fragments;
 
 
 import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.jayjhaveri.learnhub.CategoryActivity;
+import com.jayjhaveri.learnhub.UserVideosActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,9 +17,15 @@ import com.jayjhaveri.learnhub.CategoryActivity;
 public class MostRecentFragment extends VideoListFragment {
 
     boolean isCategoryActivity = false;
+    private boolean isUserVideosActivity = false;
 
     public MostRecentFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     public Query getQuery(DatabaseReference databaseReference) {
@@ -26,7 +35,10 @@ public class MostRecentFragment extends VideoListFragment {
         Query recentPostsQuery;
         if (isCategoryActivity){
             recentPostsQuery = databaseReference.child("categories").child(CategoryActivity.categoryName).limitToFirst(100);
-        }else {
+
+        } else if (isUserVideosActivity) {
+            recentPostsQuery = databaseReference.child("user-videos").child(UserVideosActivity.uid).limitToFirst(100);
+        } else {
             recentPostsQuery = databaseReference.child("videos")
                     .limitToFirst(100);
         }
@@ -43,6 +55,8 @@ public class MostRecentFragment extends VideoListFragment {
 
         if (context instanceof CategoryActivity){
             isCategoryActivity = true;
+        } else if (context instanceof UserVideosActivity) {
+            isUserVideosActivity = true;
         }
     }
 }

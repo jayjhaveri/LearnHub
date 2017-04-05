@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.jayjhaveri.learnhub.BaseApplication;
 import com.jayjhaveri.learnhub.CategoryActivity;
 import com.jayjhaveri.learnhub.R;
 import com.jayjhaveri.learnhub.adapter.CategoryAdapter;
@@ -17,7 +18,6 @@ import com.jayjhaveri.learnhub.adapter.CategoryAdapter;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.jayjhaveri.learnhub.MainActivity.categoryList;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -45,7 +45,7 @@ public class CategoriesFragment extends Fragment implements CategoryAdapter.Cate
         ButterKnife.bind(this,rootView);
 
 
-        mAdapter = new CategoryAdapter(categoryList,getActivity(),this);
+        mAdapter = new CategoryAdapter(BaseApplication.categoryList, getActivity(), this);
 
         RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
         rv_categories.setLayoutManager(mLayoutManager);

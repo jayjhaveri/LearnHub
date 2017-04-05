@@ -144,7 +144,7 @@ public class NewVideoActivity extends BaseActivity {
     private void initSpinner() {
         SpinnerAdapter adapter = new SpinnerAdapter(this, R.layout.list_category,
                 R.id.tv_category_name,
-                MainActivity.categoryList);
+                BaseApplication.categoryList);
 // Specify the layout to use when the list of choices appears
 //        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 // Apply the adapter to the spinner
@@ -153,7 +153,7 @@ public class NewVideoActivity extends BaseActivity {
         spinnerCategory.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                Category category = MainActivity.categoryList.get(i);
+                Category category = BaseApplication.categoryList.get(i);
                 mSelectedCategory = category.getCategoryName();
             }
 
@@ -353,7 +353,7 @@ public class NewVideoActivity extends BaseActivity {
                                 Map<String, Object> childUpdates = new HashMap<>();
 
                                 childUpdates.put("/videos/" + key, videoValues);
-                                childUpdates.put("/user-videos/" + userId + "/" + key, videoValues);
+                                childUpdates.put("/users/" + userId + "/user-videos/" + key, videoValues);
                                 childUpdates.put("/categories/" + mSelectedCategory + "/" + key, videoValues);
                                 database.updateChildren(childUpdates);
 

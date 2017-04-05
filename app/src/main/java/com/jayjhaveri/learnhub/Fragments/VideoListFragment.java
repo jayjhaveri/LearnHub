@@ -1,5 +1,6 @@
 package com.jayjhaveri.learnhub.Fragments;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -18,6 +19,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.jayjhaveri.learnhub.R;
+import com.jayjhaveri.learnhub.UserVideosActivity;
 import com.jayjhaveri.learnhub.VideoDetailActivity;
 import com.jayjhaveri.learnhub.model.VideoDetail;
 import com.jayjhaveri.learnhub.viewholder.VideoViewHolder;
@@ -44,6 +46,9 @@ public abstract class VideoListFragment extends Fragment {
     private FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder> firebaseRecyclerAdapter;
     private LinearLayoutManager linearLayoutManager;
 
+
+    //Check isUserVideoActivity
+    private boolean isUserVideoActivity = false;
 
     public VideoListFragment() {}
 
@@ -74,8 +79,10 @@ public abstract class VideoListFragment extends Fragment {
         // Set up FirebaseRecyclerAdapter with the Query
         Query postsQuery = getQuery(databaseReference);
 
-        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder>(VideoDetail.class, R.layout.list_video,
-                VideoViewHolder.class, postsQuery) {
+        firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder>(VideoDetail.class,
+                R.layout.list_video,
+                VideoViewHolder.class,
+                postsQuery) {
             @Override
             protected void populateViewHolder(VideoViewHolder viewHolder, final VideoDetail model, final int position) {
                 final DatabaseReference videoRef = getRef(position);
@@ -83,7 +90,6 @@ public abstract class VideoListFragment extends Fragment {
 
                 imageReference = firebaseStorage.getReferenceFromUrl(model.imageUrl);
                 final String videoKey = videoRef.getKey();
-
                 viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -93,6 +99,17 @@ public abstract class VideoListFragment extends Fragment {
                         startActivity(intent);
                     }
                 });
+
+                viewHolder.bt_item.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent intent = new Intent(getActivity(), VideoDetailActivity.class);
+                        intent.putExtra(VideoDetailActivity.EXTRA_POST_KEY, videoKey);
+                        intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_DETAIL, model);
+                        startActivity(intent);
+                    }
+                });
+
 
                 viewHolder.bindToPost(getActivity(), model, imageReference);
             }
@@ -107,4 +124,12 @@ public abstract class VideoListFragment extends Fragment {
     }
 
     public abstract Query getQuery(DatabaseReference databaseReference);
+
+    @Override
+    public void onAttach(Context context) {
+        if (context instanceof UserVideosActivity) {
+            isUserVideoActivity = true;
+        }
+        super.onAttach(context);
+    }
 }

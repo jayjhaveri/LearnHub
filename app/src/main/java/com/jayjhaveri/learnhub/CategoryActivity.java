@@ -8,6 +8,7 @@ import android.view.View;
 
 import com.jayjhaveri.learnhub.Fragments.MostPopularFragment;
 import com.jayjhaveri.learnhub.Fragments.MostRecentFragment;
+import com.jayjhaveri.learnhub.adapter.ViewPagerAdapter;
 
 public class CategoryActivity extends MainActivity {
 
@@ -31,10 +32,7 @@ public class CategoryActivity extends MainActivity {
     }
 
 
-    @Override
-    public void loadCategoryList() {
 
-    }
 
     @Override
     public void setupViewPager(ViewPager viewPager) {

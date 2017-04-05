@@ -157,6 +157,7 @@
             android:id="@+id/exo_fullscreen"
             style="@style/ExoMediaButton.Fullscreen"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
             android:contentDescription="@string/exo_control_full_screen_description" />
 
     </LinearLayout>

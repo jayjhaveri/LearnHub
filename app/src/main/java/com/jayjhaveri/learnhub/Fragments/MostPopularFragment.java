@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 import com.jayjhaveri.learnhub.CategoryActivity;
+import com.jayjhaveri.learnhub.UserVideosActivity;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -14,6 +15,7 @@ import com.jayjhaveri.learnhub.CategoryActivity;
 public class MostPopularFragment extends VideoListFragment {
 
     boolean isCategoryActivity = false;
+    boolean isUserVideoActivity = false;
 
     public MostPopularFragment() {
         // Required empty public constructor
@@ -24,6 +26,8 @@ public class MostPopularFragment extends VideoListFragment {
         Query myTopPostsQuery;
         if (isCategoryActivity) {
             myTopPostsQuery = databaseReference.child("categories").child(CategoryActivity.categoryName).orderByChild("views");
+        } else if (isUserVideoActivity) {
+            myTopPostsQuery = databaseReference.child("user-videos").child(UserVideosActivity.uid).orderByChild("views");
         } else {
             myTopPostsQuery = databaseReference.child("videos").orderByChild("views");
         }
@@ -36,6 +40,8 @@ public class MostPopularFragment extends VideoListFragment {
 
         if (context instanceof CategoryActivity) {
             isCategoryActivity = true;
+        } else if (context instanceof UserVideosActivity) {
+            isUserVideoActivity = true;
         }
     }
 

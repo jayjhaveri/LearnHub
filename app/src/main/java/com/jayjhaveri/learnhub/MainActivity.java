@@ -5,11 +5,13 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -21,8 +23,11 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
@@ -34,7 +39,17 @@ import com.jayjhaveri.learnhub.Fragments.MostPopularFragment;
 import com.jayjhaveri.learnhub.Fragments.MostRecentFragment;
 import com.jayjhaveri.learnhub.Utilities.Utilities;
 import com.jayjhaveri.learnhub.adapter.ViewPagerAdapter;
-import com.jayjhaveri.learnhub.model.Category;
+import com.mikepenz.google_material_typeface_library.GoogleMaterial;
+import com.mikepenz.iconics.IconicsDrawable;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -46,19 +61,24 @@ import butterknife.ButterKnife;
 public class MainActivity extends BaseActivity {
 
     // Choose an arbitrary request code value
-    public static final int RC_SIGN_IN = 123;
+    public static final int RC_SIGN_IN_OPEN_IMAGE_INTENT = 123;
+    public static final int RC_SIGN_IN = 124;
     private static final int REQUEST_TAKE_GALLERY_VIDEO = 101;
-    //Categories ArrayList
-    public static List<Category> categoryList = new ArrayList<>();
+
     @BindView(R.id.main_view_pager)
     ViewPager viewPagerMain;
     @BindView(R.id.main_tabs)
     TabLayout tabLayout;
     @BindView(R.id.fab)
     FloatingActionButton fab;
+
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+
     private int currentItemForViewpager = 1;
     private Uri outputFileUri;
     private boolean saved = false;
+    private FirebaseAuth auth;
 
     private void openImageIntent() {
 
@@ -115,20 +135,21 @@ public class MainActivity extends BaseActivity {
                 String extension = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_MIMETYPE);
 
                 Log.d("Output", "" + extension.substring(extension.lastIndexOf("/") + 1));
-                long timeInMillisec = Long.parseLong(time );
+                long timeInMillisec = Long.parseLong(time);
 
-                if (timeInMillisec > 600000){
-                    Toast.makeText(this, "can not upload",Toast.LENGTH_LONG).show();
-                }else {
+                if (timeInMillisec > 600000) {
+                    Toast.makeText(this, "can not upload", Toast.LENGTH_LONG).show();
+                } else {
                     Intent intent = new Intent(MainActivity.this, NewVideoActivity.class);
                     intent.putExtra("uri", selectedVideoUri.toString());
                     startActivity(intent);
                 }
 
 
-
-            } else if (requestCode == RC_SIGN_IN) {
+            } else if (requestCode == RC_SIGN_IN_OPEN_IMAGE_INTENT) {
                 openImageIntent();
+            } else if (requestCode == RC_SIGN_IN) {
+                loadAuthNavigationDrawer(toolbar);
             }
         }
     }
@@ -152,13 +173,19 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-
         ButterKnife.bind(this);
 
-        final FirebaseAuth auth = FirebaseAuth.getInstance();
+        setSupportActionBar(toolbar);
 
+
+        auth = FirebaseAuth.getInstance();
+
+        IconicsDrawable icon = new IconicsDrawable(this)
+                .icon(GoogleMaterial.Icon.gmd_videocam)
+                .color(Color.WHITE)
+                .sizeDp(24);
+
+        fab.setImageDrawable(icon);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -172,7 +199,7 @@ public class MainActivity extends BaseActivity {
                                     .createSignInIntentBuilder()
                                     .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
                                     .build(),
-                            RC_SIGN_IN
+                            RC_SIGN_IN_OPEN_IMAGE_INTENT
                     );
                 }
             }
@@ -181,18 +208,173 @@ public class MainActivity extends BaseActivity {
         setupViewPager(viewPagerMain);
         tabLayout.setupWithViewPager(viewPagerMain);
         viewPagerMain.setCurrentItem(currentItemForViewpager);
-        loadCategoryList();
 
+
+        if (auth.getCurrentUser() != null) {
+            loadAuthNavigationDrawer(toolbar);
+        }
 
     }
 
-    public void loadCategoryList() {
-        categoryList.add(new Category(R.mipmap.ic_launcher, "Cooking"));
-        categoryList.add(new Category(R.mipmap.ic_launcher, "Computer"));
-        categoryList.add(new Category(R.mipmap.ic_launcher, "Health"));
-        categoryList.add(new Category(R.mipmap.ic_launcher, "Medical"));
-        categoryList.add(new Category(R.mipmap.ic_launcher, "Science"));
+    private void loadAuthNavigationDrawer(final Toolbar toolbar) {
+
+        FirebaseUser user = auth.getCurrentUser();
+        IProfile profile = new ProfileDrawerItem().withName(user.getDisplayName()).
+                withEmail(user.getEmail()).
+                withIcon(user.getPhotoUrl()).withIdentifier(100);
+
+        AccountHeader headerResult = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withHeaderBackground(R.drawable.header)
+                .addProfiles(
+                        profile
+                )
+                .build();
+
+
+        PrimaryDrawerItem home = new PrimaryDrawerItem().withIdentifier(1)
+                .withName("Home").withIcon(GoogleMaterial.Icon.gmd_home)
+                .withIconColorRes(R.color.colorPrimaryDark)
+                .withSelectedTextColorRes(R.color.colorPrimaryDark);
+
+        PrimaryDrawerItem mydVideos = new PrimaryDrawerItem().withIdentifier(2).withName("My Videos")
+                .withIcon(GoogleMaterial.Icon.gmd_personal_video)
+                .withSelectedTextColorRes(R.color.colorPrimaryDark);
+
+        PrimaryDrawerItem likedVideos = new PrimaryDrawerItem().withIdentifier(3).withName("Liked videos")
+                .withIcon(GoogleMaterial.Icon.gmd_thumb_up)
+                .withSelectedTextColorRes(R.color.colorPrimaryDark);
+
+        PrimaryDrawerItem logout = new PrimaryDrawerItem().withIdentifier(4).withName("Logout")
+                .withIcon(GoogleMaterial.Icon.gmd_exit_to_app)
+                .withSelectedTextColorRes(R.color.colorPrimaryDark);
+
+        PrimaryDrawerItem shareApp = new PrimaryDrawerItem().withIdentifier(4).withName("Share App")
+                .withIcon(GoogleMaterial.Icon.gmd_share)
+                .withSelectedTextColorRes(R.color.colorPrimaryDark);
+
+
+        Drawer result = new DrawerBuilder()
+                .withActivity(this)
+                .withDrawerWidthDp(250)
+                .withToolbar(toolbar)
+                .withAccountHeader(headerResult, true)
+                .addDrawerItems(
+                        home,
+                        mydVideos,
+                        likedVideos,
+                        new DividerDrawerItem(),
+                        logout,
+                        shareApp
+                ).withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        switch (position) {
+                            case 0:
+                                break;
+                            case 1:
+                                Intent intent = new Intent(MainActivity.this, UserVideosActivity.class);
+                                intent.putExtra(UserVideosActivity.EXTRA_VIDEO_UID, auth.getCurrentUser().getUid());
+                                startActivity(intent);
+                                break;
+                            case 2:
+                                break;
+                            case 4:
+                                AuthUI.getInstance()
+                                        .signOut(MainActivity.this)
+                                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                // user is now signed out
+                                                loadWithoutAuthNavigationDrawer(toolbar);
+                                            }
+                                        });
+                                break;
+                            case 5:
+                                try {
+                                    Intent i = new Intent(Intent.ACTION_SEND);
+                                    i.setType("text/plain");
+                                    i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
+                                    String sAux = "WE MOVE YOUR IMAGE\n\n";
+                                    String designUrl = "https://play.google.com/store/apps/details?id=com.qwesys.designroot";
+                                    sAux = sAux + designUrl + "\n\n";
+                                    i.putExtra(Intent.EXTRA_TEXT, sAux);
+                                    startActivity(Intent.createChooser(i, "choose one"));
+                                } catch (Exception e) {
+                                    //e.toString();
+                                }
+                                break;
+                        }
+                        return false;
+                    }
+                })
+                .build();
     }
+
+    private void loadWithoutAuthNavigationDrawer(Toolbar toolbar) {
+
+        AccountHeader headerResult = new AccountHeaderBuilder()
+                .withActivity(this)
+                .withHeaderBackground(R.drawable.header)
+                .build();
+
+
+        PrimaryDrawerItem home = new PrimaryDrawerItem().withIdentifier(1)
+                .withName("Home").withIcon(GoogleMaterial.Icon.gmd_home)
+                .withIconColorRes(R.color.colorPrimaryDark)
+                .withSelectedTextColorRes(R.color.colorPrimaryDark);
+
+        PrimaryDrawerItem logIn = new PrimaryDrawerItem().withIdentifier(1)
+                .withName("Login").withIcon(GoogleMaterial.Icon.gmd_account_circle)
+                .withIconColorRes(R.color.colorPrimaryDark)
+                .withSelectedTextColorRes(R.color.colorPrimaryDark);
+
+        Drawer result = new DrawerBuilder()
+                .withActivity(this)
+                .withDrawerWidthDp(250)
+                .withAccountHeader(headerResult, true)
+                .withToolbar(toolbar)
+                .addDrawerItems(
+                        home,
+                        logIn
+                ).withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        switch (position) {
+                            case 0:
+                                break;
+                            case 1:
+                                startActivityForResult(
+                                        AuthUI.getInstance()
+                                                .createSignInIntentBuilder()
+                                                .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                                                .build(),
+                                        RC_SIGN_IN
+                                );
+                                break;
+                            case 2:
+                                break;
+                            case 5:
+                                try {
+                                    Intent i = new Intent(Intent.ACTION_SEND);
+                                    i.setType("text/plain");
+                                    i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
+                                    String sAux = "WE MOVE YOUR IMAGE\n\n";
+                                    String designUrl = "https://play.google.com/store/apps/details?id=com.qwesys.designroot";
+                                    sAux = sAux + designUrl + "\n\n";
+                                    i.putExtra(Intent.EXTRA_TEXT, sAux);
+                                    startActivity(Intent.createChooser(i, "choose one"));
+                                } catch (Exception e) {
+                                    //e.toString();
+                                }
+                                break;
+                        }
+                        return false;
+                    }
+                })
+                .build();
+    }
+
+
 
     public void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());

@@ -219,7 +219,9 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/detail_upload_date_view"
                     android:layout_marginTop="3dp"
+                    android:autoLink="all"
                     android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textIsSelectable="true"
                     android:textSize="@dimen/video_item_detail_description_text_size" />
             </RelativeLayout>
 
@@ -240,8 +242,8 @@
                     android:layout_width="@dimen/video_item_detail_like_image_width"
                     android:layout_height="@dimen/video_item_detail_like_image_height"
                     android:contentDescription="@string/detail_likes_img_view_description"
-                    android:src="@drawable/ic_thumb_up_white_24px"
-                    android:tint="@color/darkColor" />
+                    android:tint="@color/darkColor"
+                    app:srcCompat="@drawable/ic_thumb_up_white_24px" />
 
                 <TextView
                     android:id="@+id/tv_like_count"
@@ -260,17 +262,17 @@
                     android:layout_marginStart="10dp"
                     android:contentDescription="@string/detail_dislikes_img_view_description"
                     android:rotation="180"
-                    android:src="@drawable/ic_thumb_up_white_24px"
-                    android:tint="@color/darkColor" />
+                    android:tint="@color/darkColor"
+                    app:srcCompat="@drawable/ic_thumb_up_white_24px" />
 
 
                 <TextView
                     android:id="@+id/tv_dislike_count"
-                    android:layout_width="0dp"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="2dp"
+                    android:layout_marginRight="16dp"
                     android:layout_marginStart="2dp"
-                    android:layout_weight="2"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textSize="@dimen/video_item_detail_likes_text_size"
                     tools:text="2" />
@@ -285,10 +287,23 @@
                     android:src="@android:drawable/stat_sys_download_done"
                     android:tint="@color/darkColor" />
 
+                <ImageView
+                    android:id="@+id/iv_bookmark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:tint="@color/darkColor" />
+
+                <android.support.v4.widget.Space
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2" />
+
+
                 <Button
                     android:id="@+id/bt_category"
                     android:layout_width="80dp"
                     android:layout_height="30dp"
+                    android:layout_gravity="end"
                     android:layout_marginEnd="8dp"
                     android:layout_marginRight="8dp"
                     android:background="@drawable/button_background"
@@ -354,7 +369,7 @@
                 </RelativeLayout>
 
                 <Button
-                    android:id="@+id/channel_button"
+                    android:id="@+id/bt_uploader_info"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="13dp"

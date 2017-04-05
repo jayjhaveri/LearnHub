@@ -42,3 +42,5 @@
 -keep class butterknife.*
 -keepclasseswithmembernames class * { @butterknife.* <methods>; }
 -keepclasseswithmembernames class * { @butterknife.* <fields>; }
+
+-keep class org.ocpsoft.prettytime.i18n.**
