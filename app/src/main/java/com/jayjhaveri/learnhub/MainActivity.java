@@ -218,7 +218,7 @@ public class MainActivity extends BaseActivity {
 
     private void loadAuthNavigationDrawer(final Toolbar toolbar) {
 
-        FirebaseUser user = auth.getCurrentUser();
+        final FirebaseUser user = auth.getCurrentUser();
         IProfile profile = new ProfileDrawerItem().withName(user.getDisplayName()).
                 withEmail(user.getEmail()).
                 withIcon(user.getPhotoUrl()).withIdentifier(100);
@@ -245,11 +245,15 @@ public class MainActivity extends BaseActivity {
                 .withIcon(GoogleMaterial.Icon.gmd_thumb_up)
                 .withSelectedTextColorRes(R.color.colorPrimaryDark);
 
-        PrimaryDrawerItem logout = new PrimaryDrawerItem().withIdentifier(4).withName("Logout")
+        PrimaryDrawerItem bookmarkVideos = new PrimaryDrawerItem().withIdentifier(4).withName("Bookmark videos")
+                .withIcon(GoogleMaterial.Icon.gmd_bookmark)
+                .withSelectedTextColorRes(R.color.colorPrimaryDark);
+
+        PrimaryDrawerItem logout = new PrimaryDrawerItem().withIdentifier(5).withName("Logout")
                 .withIcon(GoogleMaterial.Icon.gmd_exit_to_app)
                 .withSelectedTextColorRes(R.color.colorPrimaryDark);
 
-        PrimaryDrawerItem shareApp = new PrimaryDrawerItem().withIdentifier(4).withName("Share App")
+        PrimaryDrawerItem shareApp = new PrimaryDrawerItem().withIdentifier(6).withName("Share App")
                 .withIcon(GoogleMaterial.Icon.gmd_share)
                 .withSelectedTextColorRes(R.color.colorPrimaryDark);
 
@@ -263,6 +267,7 @@ public class MainActivity extends BaseActivity {
                         home,
                         mydVideos,
                         likedVideos,
+                        bookmarkVideos,
                         new DividerDrawerItem(),
                         logout,
                         shareApp
@@ -278,8 +283,19 @@ public class MainActivity extends BaseActivity {
                                 startActivity(intent);
                                 break;
                             case 2:
+
+                                Intent likedVideoIntent = new Intent(MainActivity.this, LikeVideosActivity.class);
+                                likedVideoIntent.putExtra(LikeVideosActivity.EXTRA_IS_LIKE, true);
+                                likedVideoIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(likedVideoIntent);
                                 break;
-                            case 4:
+
+                            case 3:
+                                Intent bookmarkIntent = new Intent(MainActivity.this, BookmarkActivity.class);
+                                startActivity(bookmarkIntent);
+                                break;
+
+                            case 5:
                                 AuthUI.getInstance()
                                         .signOut(MainActivity.this)
                                         .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -289,7 +305,7 @@ public class MainActivity extends BaseActivity {
                                             }
                                         });
                                 break;
-                            case 5:
+                            case 6:
                                 try {
                                     Intent i = new Intent(Intent.ACTION_SEND);
                                     i.setType("text/plain");

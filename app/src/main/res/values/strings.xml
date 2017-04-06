@@ -35,4 +35,6 @@
     <string name="title_activity_user_videos">User Videos</string>
     <string name="drawer_item_home">Home</string>
     <string name="list_thumbnail_view_description">Thumbnail for video</string>
+    <string name="title_activity_liked_video">Liked Videos</string>
+    <string name="title_bookmark_videos">Bookmark Videos</string>
 </resources>
