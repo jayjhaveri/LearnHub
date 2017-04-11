@@ -4,6 +4,9 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.jayjhaveri.learnhub.Fragments.MostPopularFragment;
@@ -27,8 +30,10 @@ public class CategoryActivity extends MainActivity {
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setVisibility(View.GONE);
+        getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
+        loadAuthNavigationDrawer(toolbar);
+        loadWithoutAuthNavigationDrawer(toolbar);
     }
 
 
@@ -41,4 +46,26 @@ public class CategoryActivity extends MainActivity {
         adapter.addFragment(new MostRecentFragment(), getString(R.string.most_recent_fragment_title));
         viewPager.setAdapter(adapter);
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        Log.d("category", "" + item.getItemId());
+        if (item.getItemId() == android.R.id.home) {
+            onBackPressed();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void loadAuthNavigationDrawer(Toolbar toolbar) {
+
+    }
+
+    @Override
+    protected void loadWithoutAuthNavigationDrawer(Toolbar toolbar) {
+
+    }
+
 }

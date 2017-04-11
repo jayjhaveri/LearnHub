@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="list_video_frame_margin">100dp</dimen>
+    <dimen name="detail_exoPlayer_height">410dp</dimen>
+    <dimen name="detail_ns_margin_top">420dp</dimen>
+    <dimen name="playerView_default">410dp</dimen>
+    <dimen name="new_video_exoplayer_height">400dp</dimen>
+
+    <dimen name="list_category_card_height">120dp</dimen>
+    <dimen name="list_category_tv_category">28sp</dimen>
+
+    <dimen name="detail_tv_title_margin">24dp</dimen>
+    <dimen name="detail_toggle_desc_width">30dp</dimen>
+    <dimen name="detail_toggle_desc_height">60dp</dimen>
+    <dimen name="detail_toggle_margin">20dp</dimen>
+    <dimen name="detail_toggle_margin_top">16dp</dimen>
+    <dimen name="detail_tv_view_marginLeft">24dp</dimen>
+    <dimen name="detail_tv_view_margin_top">10dp</dimen>
+    <dimen name="detail_extraView_margin">24dp</dimen>
+    <dimen name="detail_tv_date_margin_top">6dp</dimen>
+    <dimen name="detail_tv_video_desc_margin_top">6dp</dimen>
+    <dimen name="detail_info_layout_margin">24dp</dimen>
+    <dimen name="detail_info_layout_marginTop">10dp</dimen>
+    <dimen name="detail_like_count_marginLeft">4dp</dimen>
+    <dimen name="detail_iv_dislike_marginLeft">20dp</dimen>
+    <dimen name="detail_tv_dislikeCount_marginLeft">4dp</dimen>
+    <dimen name="detail_tv_disLikeCount_margin_right">32dp</dimen>
+    <dimen name="detail_iv_download_marginRight">16dp</dimen>
+    <dimen name="detail_bt_category_width">160dp</dimen>
+    <dimen name="detail_bt_category_height">60dp</dimen>
+    <dimen name="detail_bt_category_margin_right">16dp</dimen>
+    <dimen name="detail_bt_category_textSize">28sp</dimen>
+    <dimen name="detail_uploader_layout_marginTop">24dp</dimen>
+    <dimen name="detail_ci_uploader_image_marginBottom">10dp</dimen>
+    <dimen name="detail_ci_uploader_image_marginLeft">20dp</dimen>
+    <dimen name="detail_tv_uploader_name_marginLef">30dp</dimen>
+    <dimen name="detail_uploader_name_marginStart">56dp</dimen>
+    <dimen name="detail_tv_comment_padding">32dp</dimen>
+    <dimen name="detail_tv_comment_textSize">32sp</dimen>
+    <dimen name="detail_tv_no_comments_margin">32dp</dimen>
+    <dimen name="detail_tv_no_comments_textSize">32sp</dimen>
+    <dimen name="detail_item_bookmark">36dp</dimen>
+
+    <!-- Video Item Detail View Dimensions-->
+    <!-- Text Size -->
+    <dimen name="video_item_detail_title_text_size">40sp</dimen>
+    <dimen name="video_item_detail_views_text_size">28dp</dimen>
+    <dimen name="video_item_detail_likes_text_size">28sp</dimen>
+    <dimen name="video_item_detail_uploader_text_size">28sp</dimen>
+    <dimen name="video_item_detail_upload_date_text_size">28sp</dimen>
+    <dimen name="video_item_detail_description_text_size">28sp</dimen>
+    <dimen name="video_item_detail_next_text_size">32sp</dimen>
+    <dimen name="video_item_detail_similar_text_size">32sp</dimen>
+    <!-- Elements Size -->
+    <dimen name="video_item_detail_thumbnail_image_height">400dp</dimen>
+    <dimen name="video_item_detail_uploader_image_size">100dp</dimen>
+    <dimen name="video_item_detail_like_image_height">36sp</dimen>
+    <dimen name="video_item_detail_like_image_width">36sp</dimen>
+    <dimen name="channel_avatar_size">100dp</dimen>
+    <dimen name="channel_avatar_halo_size">120dp</dimen>
+    <!-- Paddings & Margins -->
+    <dimen name="video_item_detail_like_margin">12sp</dimen>
+    <dimen name="video_item_detail_play_fab_margin">40sp</dimen>
+
+</resources>

@@ -1,5 +1,4 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -8,10 +7,10 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/ci_user_image"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_margin="8dp"
-        android:padding="4dp" />
+        android:layout_width="@dimen/comment_ci_user_image_width"
+        android:layout_height="@dimen/comment_ci_user_image_width"
+        android:layout_margin="@dimen/comment_ci_margin"
+        android:padding="@dimen/comment_ci_user_image_padding" />
 
 
     <EditText
@@ -25,12 +24,11 @@
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/ci_send_comment"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimen/comment_ci_send_width"
+        android:layout_height="@dimen/comment_ci_send_width"
         android:layout_gravity="center"
-        android:padding="4dp"
-        android:visibility="visible"
-        app:srcCompat="@drawable/ic_send_black_24px" />
+        android:padding="@dimen/comment_ci_send_padding"
+        android:visibility="visible" />
 
 
 </LinearLayout>

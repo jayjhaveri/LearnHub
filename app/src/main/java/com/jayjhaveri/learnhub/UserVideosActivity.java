@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.TextView;
 
@@ -14,16 +13,20 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.jayjhaveri.learnhub.Fragments.MostPopularFragment;
 import com.jayjhaveri.learnhub.Fragments.MostRecentFragment;
+import com.jayjhaveri.learnhub.Utilities.Utilities;
 import com.jayjhaveri.learnhub.adapter.ViewPagerAdapter;
 import com.jayjhaveri.learnhub.model.User;
+import com.jayjhaveri.learnhub.model.VideoDetail;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class UserVideosActivity extends AppCompatActivity {
+public class UserVideosActivity extends BaseActivity {
 
     public static final String EXTRA_VIDEO_UID = "video_uid";
     public static String uid = null;
@@ -56,7 +59,7 @@ public class UserVideosActivity extends AppCompatActivity {
         if (getIntent().getStringExtra(EXTRA_VIDEO_UID) != null) {
             uid = getIntent().getStringExtra(EXTRA_VIDEO_UID);
         }
-        userDatabaseRef = FirebaseDatabase.getInstance().getReference().child("users").child(uid);
+        userDatabaseRef = FirebaseDatabase.getInstance().getReference().child("users").child(getUid());
 
         setupViewPager(viewPagerMain);
         tabLayout.setupWithViewPager(viewPagerMain);
@@ -103,4 +106,23 @@ public class UserVideosActivity extends AppCompatActivity {
         viewPager.setAdapter(adapter);
     }
 
+    public void doPositiveClick(String videoKey, VideoDetail videoDetail) {
+        Utilities.getUserVideosRef().child(getUid()).child(videoKey).removeValue();
+        Utilities.getVideosRef().child(videoKey).removeValue();
+        Utilities.getCategoryVideosRef().child(videoDetail.category).child(videoKey).removeValue();
+        // Create a storage reference from our app
+
+
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageRef = storage.getReference();
+        StorageReference videoRef = storage.getReferenceFromUrl(videoDetail.videoUrl);
+        StorageReference imageRef = storage.getReferenceFromUrl(videoDetail.imageUrl);
+
+        videoRef.delete();
+        imageRef.delete();
+    }
+
+    public void doNegativeClick(String videoKey) {
+
+    }
 }

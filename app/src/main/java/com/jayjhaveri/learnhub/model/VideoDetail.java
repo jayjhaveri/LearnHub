@@ -3,6 +3,7 @@ package com.jayjhaveri.learnhub.model;
 import android.os.Parcel;
 
 import com.google.firebase.database.Exclude;
+import com.google.firebase.database.ServerValue;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -26,6 +27,8 @@ public class VideoDetail implements Serializable {
     public String videoUrl;
     public String imageUrl;
     public String fileUrl;
+    public String duration;
+    public Map<String, Object> timestamp;
     public Map<String, Boolean> likes = new HashMap<>();
     public Map<String, Boolean> disLikes = new HashMap<>();
 
@@ -37,7 +40,8 @@ public class VideoDetail implements Serializable {
                        String title, String body,
                        String profileImage,
                        String videoUrl, String imageUrl,
-                       String fileUrl) {
+                       String fileUrl,
+                       String duration) {
         this.uid = uid;
         this.author = author;
         this.category = category;
@@ -47,7 +51,15 @@ public class VideoDetail implements Serializable {
         this.imageUrl = imageUrl;
         this.videoUrl = videoUrl;
         this.fileUrl = fileUrl;
+        this.duration = duration;
+
+        //Date last changed will always be set to ServerValue.TIMESTAMP
+        HashMap<String, Object> timestamp = new HashMap<String, Object>();
+        timestamp.put("timestamp", ServerValue.TIMESTAMP);
+
+        this.timestamp = timestamp;
     }
+
 
     protected VideoDetail(Parcel in) {
         uid = in.readString();
@@ -83,7 +95,29 @@ public class VideoDetail implements Serializable {
         result.put("videoUrl", videoUrl);
         result.put("imageUrl", imageUrl);
         result.put("fileUrl", fileUrl);
+        result.put("duration", duration);
+        result.put("timestamp", timestamp);
         return result;
+    }
+
+    @Exclude
+    public Map<String, Object> toEditMap() {
+        HashMap<String, Object> result = new HashMap<>();
+
+        result.put("category", category);
+        result.put("title", title);
+        result.put("body", body);
+        return result;
+    }
+
+    @Exclude
+    public long getTimestamp() {
+        if (timestamp.containsKey("timestamp")) {
+
+            return (long) timestamp.get("timestamp");
+        }
+
+        return 0;
     }
 
 

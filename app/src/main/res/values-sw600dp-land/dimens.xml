@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="list_video_frame_margin">200dp</dimen>
+    <dimen name="list_category_tv_category">32sp</dimen>
+</resources>

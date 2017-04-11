@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:id="@+id/itemThumbnailViewContainer"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="@dimen/video_item_search_image_right_margin"
+            tools:ignore="RtlHardcoded">
+
+            <ImageView
+                android:id="@+id/iv_video_image"
+                android:layout_width="@dimen/video_item_search_thumbnail_image_width"
+                android:layout_height="@dimen/video_item_search_thumbnail_image_height"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:contentDescription="@string/list_thumbnail_view_description"
+                android:scaleType="centerCrop"
+                tools:src="@drawable/button_background" />
+
+            <TextView
+                android:id="@+id/tv_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBottom="@id/iv_video_image"
+                android:layout_alignEnd="@id/iv_video_image"
+                android:layout_alignRight="@id/iv_video_image"
+                android:layout_marginBottom="@dimen/video_item_search_duration_margin"
+                android:layout_marginEnd="@dimen/video_item_search_duration_margin"
+                android:layout_marginRight="@dimen/video_item_search_duration_margin"
+                android:background="@color/duration_background_color"
+                android:paddingBottom="@dimen/video_item_search_duration_vertical_padding"
+                android:paddingLeft="@dimen/video_item_search_duration_horizontal_padding"
+                android:paddingRight="@dimen/video_item_search_duration_horizontal_padding"
+                android:paddingTop="@dimen/video_item_search_duration_vertical_padding"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="@color/duration_text_color"
+                android:textSize="@dimen/video_item_search_duration_text_size" />
+
+            <android.support.design.widget.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/edit_text_input_marginBottom"
+                android:layout_toRightOf="@id/iv_video_image">
+
+                <android.support.design.widget.TextInputEditText
+                    android:id="@+id/et_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/title_video"
+                    android:imeOptions="actionNext" />
+
+            </android.support.design.widget.TextInputLayout>
+        </RelativeLayout>
+
+        <android.support.design.widget.TextInputLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.design.widget.TextInputEditText
+                android:id="@+id/et_desc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/description_video" />
+
+        </android.support.design.widget.TextInputLayout>
+
+
+    </LinearLayout>
+
+
+</android.support.v4.widget.NestedScrollView>

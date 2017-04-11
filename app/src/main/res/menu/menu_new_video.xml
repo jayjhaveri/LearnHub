@@ -2,17 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <item android:id="@+id/action_file_upload"
-        android:icon="@android:drawable/ic_dialog_info"
-        android:orderInCategory="100"
-        android:title="Upload file"
-        app:showAsAction="always"/>
-
     <item
         android:id="@+id/action_upload"
         android:icon="@drawable/ic_send_white_24px"
         android:orderInCategory="101"
-        android:title="Send"
+        android:title="@string/send_new_video"
         app:showAsAction="always"/>
 
 </menu>

@@ -1,20 +1,22 @@
 package com.jayjhaveri.learnhub.adapter;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.jayjhaveri.learnhub.R;
 import com.jayjhaveri.learnhub.model.Category;
+import com.mikepenz.iconics.IconicsDrawable;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * Created by ADMIN-PC on 22-03-2017.
@@ -44,8 +46,14 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public void onBindViewHolder(CategoryViewHolder holder, int position) {
         Category category = categoryList.get(position);
 
-        holder.ci_category_image.setImageResource(category.getImageResource());
+        holder.iv_category_image.setImageDrawable(new IconicsDrawable(context)
+                .icon(category.getImageResource())
+                .color(ContextCompat.getColor(context, R.color.colorPrimaryDark))
+                .sizeDp(20)
+        );
         holder.tv_category_name.setText(category.getCategoryName());
+
+        holder.iv_category_image.setContentDescription(category.getCategoryName());
     }
 
     @Override
@@ -59,8 +67,8 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
     public class CategoryViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
-        @BindView(R.id.ci_category_image)
-        CircleImageView ci_category_image;
+        @BindView(R.id.iv_category_image)
+        ImageView iv_category_image;
 
         @BindView(R.id.tv_category_name)
         TextView tv_category_name;

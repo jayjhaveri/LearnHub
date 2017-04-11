@@ -1,10 +1,12 @@
 package com.jayjhaveri.learnhub;
 
+import android.Manifest;
+import android.app.SearchManager;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
@@ -15,6 +17,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -34,11 +37,11 @@ import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.jayjhaveri.learnhub.Fragments.CategoriesFragment;
-import com.jayjhaveri.learnhub.Fragments.HomeFragment;
 import com.jayjhaveri.learnhub.Fragments.MostPopularFragment;
 import com.jayjhaveri.learnhub.Fragments.MostRecentFragment;
 import com.jayjhaveri.learnhub.Utilities.Utilities;
 import com.jayjhaveri.learnhub.adapter.ViewPagerAdapter;
+import com.jayjhaveri.learnhub.model.User;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -57,14 +60,20 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import pub.devrel.easypermissions.AfterPermissionGranted;
+import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends BaseActivity {
 
     // Choose an arbitrary request code value
     public static final int RC_SIGN_IN_OPEN_IMAGE_INTENT = 123;
     public static final int RC_SIGN_IN = 124;
+    public static final int RC_MANAGE_DOCUMENTS = 201;
+    public static final String EXTRA_URI = "uri";
     private static final int REQUEST_TAKE_GALLERY_VIDEO = 101;
-
+    private static final String[] cameraPerms = new String[]{
+            Manifest.permission.READ_EXTERNAL_STORAGE
+    };
     @BindView(R.id.main_view_pager)
     ViewPager viewPagerMain;
     @BindView(R.id.main_tabs)
@@ -74,6 +83,7 @@ public class MainActivity extends BaseActivity {
 
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+
 
     private int currentItemForViewpager = 1;
     private Uri outputFileUri;
@@ -141,20 +151,24 @@ public class MainActivity extends BaseActivity {
                     Toast.makeText(this, "can not upload", Toast.LENGTH_LONG).show();
                 } else {
                     Intent intent = new Intent(MainActivity.this, NewVideoActivity.class);
-                    intent.putExtra("uri", selectedVideoUri.toString());
+                    intent.putExtra(EXTRA_URI, selectedVideoUri.toString());
                     startActivity(intent);
                 }
 
 
             } else if (requestCode == RC_SIGN_IN_OPEN_IMAGE_INTENT) {
+                User user = Utilities.getLoginUser(auth);
+                Utilities.putDataToUsers(user);
                 openImageIntent();
             } else if (requestCode == RC_SIGN_IN) {
+                User user = Utilities.getLoginUser(auth);
+                Utilities.putDataToUsers(user);
                 loadAuthNavigationDrawer(toolbar);
             }
         }
     }
 
-    public String getPath(Uri uri) {
+   /* public String getPath(Uri uri) {
         String[] projection = {MediaStore.Images.Media.DATA};
         Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
         if (cursor != null) {
@@ -166,7 +180,7 @@ public class MainActivity extends BaseActivity {
             return cursor.getString(column_index);
         } else
             return null;
-    }
+    }*/
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,8 +190,7 @@ public class MainActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
-
-
+        getSupportActionBar().setTitle("LearnHub");
         auth = FirebaseAuth.getInstance();
 
         IconicsDrawable icon = new IconicsDrawable(this)
@@ -212,11 +225,12 @@ public class MainActivity extends BaseActivity {
 
         if (auth.getCurrentUser() != null) {
             loadAuthNavigationDrawer(toolbar);
+        } else {
+            loadWithoutAuthNavigationDrawer(toolbar);
         }
-
     }
 
-    private void loadAuthNavigationDrawer(final Toolbar toolbar) {
+    protected void loadAuthNavigationDrawer(final Toolbar toolbar) {
 
         final FirebaseUser user = auth.getCurrentUser();
         IProfile profile = new ProfileDrawerItem().withName(user.getDisplayName()).
@@ -285,8 +299,7 @@ public class MainActivity extends BaseActivity {
                             case 2:
 
                                 Intent likedVideoIntent = new Intent(MainActivity.this, LikeVideosActivity.class);
-                                likedVideoIntent.putExtra(LikeVideosActivity.EXTRA_IS_LIKE, true);
-                                likedVideoIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                likedVideoIntent.putExtra(LikeVideosActivity.EXTRA_IS_LIKE, "likes");
                                 startActivity(likedVideoIntent);
                                 break;
 
@@ -326,7 +339,7 @@ public class MainActivity extends BaseActivity {
                 .build();
     }
 
-    private void loadWithoutAuthNavigationDrawer(Toolbar toolbar) {
+    protected void loadWithoutAuthNavigationDrawer(Toolbar toolbar) {
 
         AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
@@ -395,9 +408,8 @@ public class MainActivity extends BaseActivity {
     public void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
         adapter.addFragment(new CategoriesFragment(), getString(R.string.categories_fragment_title));
-        adapter.addFragment(new HomeFragment(), getString(R.string.home_fragment_title));
-        adapter.addFragment(new MostPopularFragment(), getString(R.string.most_popular_fragment_title));
         adapter.addFragment(new MostRecentFragment(), getString(R.string.most_recent_fragment_title));
+        adapter.addFragment(new MostPopularFragment(), getString(R.string.most_popular_fragment_title));
         viewPager.setAdapter(adapter);
     }
 
@@ -405,6 +417,19 @@ public class MainActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.action_search).getActionView();
+
+        ComponentName cn = new ComponentName(this, SearchResultsActivity.class);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(cn));
+
+//        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+//        searchView.setSubmitButtonEnabled(true);
+
         return true;
     }
 
@@ -415,8 +440,11 @@ public class MainActivity extends BaseActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
+
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.action_search) {
             return true;
         }
 
@@ -457,6 +485,38 @@ public class MainActivity extends BaseActivity {
                     Toast.makeText(MainActivity.this, "Success", Toast.LENGTH_LONG).show();
                     Utilities.deleteStringPreference(MainActivity.this, getString(R.string.session_uri));
                     Utilities.deleteStringPreference(MainActivity.this, getString(R.string.video_uri));
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
+
+    @AfterPermissionGranted(RC_MANAGE_DOCUMENTS)
+    private void uploadPendings() {
+        if (!EasyPermissions.hasPermissions(this, cameraPerms)) {
+            return;
+        }
+
+        if (!Utilities.readStringPreference(this, getString(R.string.session_uri)).equals("no_uri")) {
+            Uri videoUri = Uri.parse(Utilities.readStringPreference(this, getString(R.string.video_uri)));
+
+            StorageReference mStorageRef = FirebaseStorage.getInstance().getReference().
+                    child("videos/" + videoUri.getLastPathSegment());
+            UploadTask uploadTask = mStorageRef.putFile(Uri.parse(Utilities.readStringPreference(this, getString(R.string.video_uri))),
+                    new StorageMetadata.Builder().build()
+                    , Uri.parse(Utilities.readStringPreference(this, getString(R.string.session_uri))));
+
+            uploadTask.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    Utilities.deleteStringPreference(MainActivity.this, getString(R.string.video_uri));
+                    Utilities.deleteStringPreference(MainActivity.this, getString(R.string.session_uri));
                 }
             });
         }

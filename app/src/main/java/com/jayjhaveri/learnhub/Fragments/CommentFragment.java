@@ -25,6 +25,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.jayjhaveri.learnhub.R;
 import com.jayjhaveri.learnhub.VideoDetailActivity;
 import com.jayjhaveri.learnhub.model.Comment;
+import com.mikepenz.google_material_typeface_library.GoogleMaterial;
+import com.mikepenz.iconics.IconicsDrawable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -83,6 +85,11 @@ public class CommentFragment extends DialogFragment {
 
         View rootView = inflater.inflate(R.layout.fragment_comment, container, false);
         ButterKnife.bind(this, rootView);
+
+        mCi_send_comment.setImageDrawable(new IconicsDrawable(getActivity())
+                .icon(GoogleMaterial.Icon.gmd_send)
+                .colorRes(R.color.colorPrimary)
+                .sizeDp(24));
 
         mEt_comment.addTextChangedListener(new TextWatcher() {
             @Override

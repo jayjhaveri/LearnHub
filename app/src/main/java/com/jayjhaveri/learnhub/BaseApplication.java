@@ -8,7 +8,9 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.danikula.videocache.HttpProxyCacheServer;
+import com.google.firebase.database.FirebaseDatabase;
 import com.jayjhaveri.learnhub.model.Category;
+import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.util.AbstractDrawerImageLoader;
 import com.mikepenz.materialdrawer.util.DrawerImageLoader;
@@ -43,7 +45,7 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-//        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
+        FirebaseDatabase.getInstance().setPersistenceEnabled(true);
 
         //initialize and create the image loader logic
         DrawerImageLoader.init(new AbstractDrawerImageLoader() {
@@ -80,11 +82,11 @@ public class BaseApplication extends Application {
         loadCategoryList();
     }
 
-    public void loadCategoryList() {
-        categoryList.add(new Category(R.mipmap.ic_launcher, "Cooking"));
-        categoryList.add(new Category(R.mipmap.ic_launcher, "Computer"));
-        categoryList.add(new Category(R.mipmap.ic_launcher, "Health"));
-        categoryList.add(new Category(R.mipmap.ic_launcher, "Medical"));
-        categoryList.add(new Category(R.mipmap.ic_launcher, "Science"));
+    private void loadCategoryList() {
+        categoryList.add(new Category(GoogleMaterial.Icon.gmd_restaurant, "Cooking"));
+        categoryList.add(new Category(GoogleMaterial.Icon.gmd_computer, "Computer"));
+        categoryList.add(new Category(GoogleMaterial.Icon.gmd_local_cafe, "Health"));
+        categoryList.add(new Category(GoogleMaterial.Icon.gmd_local_hospital, "Medical"));
+        categoryList.add(new Category(GoogleMaterial.Icon.gmd_school, "Science"));
     }
 }

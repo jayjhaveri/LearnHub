@@ -9,7 +9,7 @@
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="@dimen/user_video_appBar_height"
         android:theme="@style/AppTheme.AppBarOverlay"
         app:elevation="0dp">
 
@@ -20,35 +20,31 @@
             app:expandedTitleGravity="bottom|center_horizontal"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <FrameLayout
+
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:layout_collapseMode="parallax">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:orientation="vertical"
-                    app:layout_collapseMode="parallax">
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/ci_user_image_userVideos"
+                    android:layout_width="@dimen/user_circle_image_height"
+                    android:layout_height="@dimen/user_circle_image_height"
+                    android:layout_marginTop="@dimen/user_ci_margin_top"
+                    android:padding="@dimen/user_ci_padding"
+                    android:src="@mipmap/ic_launcher" />
 
-                    <de.hdodenhof.circleimageview.CircleImageView
-                        android:id="@+id/ci_user_image_userVideos"
-                        android:layout_width="100dp"
-                        android:layout_height="100dp"
-                        android:layout_marginTop="24dp"
-                        android:padding="16dp"
-                        android:src="@mipmap/ic_launcher" />
+                <TextView
+                    android:id="@+id/ci_user_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/darkColor"
+                    android:textSize="@dimen/user_tv_user_textSize" />
 
-                    <TextView
-                        android:id="@+id/ci_user_name"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/darkColor"
-                        android:textSize="18sp" />
+            </LinearLayout>
 
-                </LinearLayout>
-
-            </FrameLayout>
 
             <android.support.v7.widget.Toolbar
                 android:id="@+id/toolbar"

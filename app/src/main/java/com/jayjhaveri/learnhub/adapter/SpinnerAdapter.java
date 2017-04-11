@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.jayjhaveri.learnhub.R;
 import com.jayjhaveri.learnhub.model.Category;
+import com.mikepenz.iconics.IconicsDrawable;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class SpinnerAdapter extends ArrayAdapter<Category> {
     public SpinnerAdapter(Activity context, int groupid, int id, List<Category>
             list){
         super(context,id,list);
+        this.context = context;
         this.list=list;
         inflater=(LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.groupid=groupid;
@@ -37,8 +39,13 @@ public class SpinnerAdapter extends ArrayAdapter<Category> {
 
     public View getView(int position, View convertView, @NonNull ViewGroup parent ){
         View itemView=inflater.inflate(groupid,parent,false);
-        ImageView imageView=(ImageView)itemView.findViewById(R.id.ci_category_image);
-        imageView.setImageResource(list.get(position).getImageResource());
+        ImageView imageView = (ImageView) itemView.findViewById(R.id.iv_category_image);
+        imageView.setImageDrawable(
+                new IconicsDrawable(context)
+                        .icon(list.get(position).getImageResource())
+                        .sizeDp(24)
+        );
+        imageView.setContentDescription(list.get(position).getCategoryName());
         TextView textView=(TextView)itemView.findViewById(R.id.tv_category_name);
         textView.setText(list.get(position).getCategoryName());
         return itemView;

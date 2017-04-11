@@ -14,9 +14,16 @@ public class LikedAndBookmarkFragment extends VideoListFragment {
     }
 
 
+
     @Override
     public Query getQuery(DatabaseReference databaseReference) {
         return databaseReference.child("videos")
                 .limitToFirst(100);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+//        likedAndBookmarkAdapter.clearAdapter();
     }
 }

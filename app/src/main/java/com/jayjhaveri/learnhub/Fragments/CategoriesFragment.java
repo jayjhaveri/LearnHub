@@ -4,7 +4,7 @@ package com.jayjhaveri.learnhub.Fragments;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,8 +47,8 @@ public class CategoriesFragment extends Fragment implements CategoryAdapter.Cate
 
         mAdapter = new CategoryAdapter(BaseApplication.categoryList, getActivity(), this);
 
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getActivity());
-        rv_categories.setLayoutManager(mLayoutManager);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getActivity(), 2);
+        rv_categories.setLayoutManager(gridLayoutManager);
         rv_categories.setHasFixedSize(true);
         rv_categories.setAdapter(mAdapter);
 

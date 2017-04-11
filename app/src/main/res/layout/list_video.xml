@@ -1,41 +1,71 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="250dp">
+    android:layout_height="250dp"
+    android:layout_marginLeft="@dimen/list_video_frame_margin"
+    android:layout_marginRight="@dimen/list_video_frame_margin">
 
     <android.support.v7.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="4dp">
+        android:layout_margin="@dimen/list_video_card_margin"
+        android:background="?attr/selectableItemBackground">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_margin="16dp"
+            android:layout_margin="@dimen/list_video_linear_margin"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/iv_video_image"
+            <RelativeLayout
+                android:id="@+id/itemThumbnailViewContainer"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:layout_marginRight="@dimen/video_item_search_image_right_margin"
                 android:layout_weight="5"
-                android:adjustViewBounds="true"
-                android:scaleType="fitCenter"
-                tools:src="@mipmap/ic_launcher" />
+                tools:ignore="RtlHardcoded">
+
+                <ImageView
+                    android:id="@+id/iv_video_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    tools:src="@mipmap/ic_launcher" />
+
+                <TextView
+                    android:id="@+id/tv_duration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/iv_video_image"
+                    android:layout_alignEnd="@id/iv_video_image"
+                    android:layout_alignRight="@id/iv_video_image"
+                    android:layout_marginBottom="@dimen/video_item_search_duration_margin"
+                    android:layout_marginEnd="@dimen/video_item_search_duration_margin"
+                    android:layout_marginRight="@dimen/video_item_search_duration_margin"
+                    android:background="@color/duration_background_color"
+                    android:paddingBottom="@dimen/video_item_search_duration_vertical_padding"
+                    android:paddingLeft="@dimen/video_item_search_duration_horizontal_padding"
+                    android:paddingRight="@dimen/video_item_search_duration_horizontal_padding"
+                    android:paddingTop="@dimen/video_item_search_duration_vertical_padding"
+                    android:textAppearance="?android:attr/textAppearanceSmall"
+                    android:textColor="@color/duration_text_color"
+                    android:textSize="@dimen/video_item_search_duration_text_size" />
+            </RelativeLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1.30"
+                android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
                 <de.hdodenhof.circleimageview.CircleImageView
                     android:id="@+id/iv_profile_image"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:padding="8dp"
+                    android:layout_width="@dimen/list_video_ci_profile_height"
+                    android:layout_height="@dimen/list_video_ci_profile_height"
+                    android:padding="@dimen/list_video_ci_profile_padding"
                     tools:src="@mipmap/ic_launcher" />
 
                 <LinearLayout
@@ -47,17 +77,37 @@
                     <TextView
                         android:id="@+id/tv_title"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:ellipsize="end"
+                        android:maxLines="2"
+                        android:textAppearance="?android:attr/textAppearanceLarge"
+                        android:textSize="16sp"
+                        tools:text="hello" />
 
-                    <TextView
-                        android:id="@+id/tv_author"
+                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
 
-                    <TextView
-                        android:id="@+id/tv_upload_time"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content" />
+                        <TextView
+                            android:id="@+id/tv_author"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                        <TextView
+                            android:id="@+id/tv_views"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            tools:text="ndajkndkakjdnajknnakd" />
+
+                        <TextView
+                            android:id="@+id/tv_upload_time"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:maxLines="2"
+                            tools:text="afnadjajsladkasdnandandlaskldklasnd" />
+
+                    </LinearLayout>
 
 
                 </LinearLayout>
@@ -66,14 +116,28 @@
 
         </LinearLayout>
 
+        <ImageView
+            android:id="@+id/iv_popUp_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end"
+            android:layout_marginEnd="4dp"
+            android:layout_marginRight="4dp"
+            android:background="@android:color/transparent"
+            android:contentDescription="@string/popup_menu_comment_description"
+            app:srcCompat="@drawable/ic_more_vert_black_24px" />
+
 
     </android.support.v7.widget.CardView>
+
 
     <Button
         android:id="@+id/bt_item"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/selectableItemBackground" />
+        android:background="?attr/selectableItemBackground"
+        android:maxWidth="400dp" />
+
 
 </FrameLayout>
 

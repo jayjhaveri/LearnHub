@@ -8,7 +8,7 @@
     <string name="home_fragment_title">Home</string>
     <string name="most_popular_fragment_title">Most Popular</string>
     <string name="most_recent_fragment_title">Most Recent</string>
-    <string name="title_activity_new_video">NewVideoActivity</string>
+    <string name="title_activity_new_video">Upload your video</string>
     <string name="session_uri">session_uri</string>
     <string name="utility">utility</string>
     <string name="video_uri">videoUri</string>
@@ -37,4 +37,22 @@
     <string name="list_thumbnail_view_description">Thumbnail for video</string>
     <string name="title_activity_liked_video">Liked Videos</string>
     <string name="title_bookmark_videos">Bookmark Videos</string>
+    <string name="search_hint">Search here</string>
+    <string name="search">Search</string>
+    <string name="title_activity_search_results">SearchResultsActivity</string>
+    <string name="title_activity_edit_video">Edit your video</string>
+    <string name="alert_dialog_ok">yes</string>
+    <string name="alert_dialog_cancel">No</string>
+    <string name="alert_dialog_two_buttons_title">Are you sure want to delete?</string>
+    <string name="empty_video_list">No recent videos</string>
+    <string name="bookmark_this_video">Bookmark this video</string>
+    <string name="upload_date">Upload date</string>
+    <string name="comments_title">Comments</string>
+    <string name="upload_file_button">Upload additional file</string>
+    <string name="send_new_video">Send</string>
+    <string name="can_not_open">No handler for this type of file.</string>
+    <string name="file_donloaded">File downloaded</string>
+    <string name="selected_file_desc">Your selected file:</string>
+    <string name="file_upload_instrction">(This is optional if you have file like recipe file or pdf you can upload here)</string>
+    <string name="empty_view">No items here</string>
 </resources>

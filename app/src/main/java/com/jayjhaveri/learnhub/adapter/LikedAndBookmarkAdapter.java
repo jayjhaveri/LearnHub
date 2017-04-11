@@ -36,6 +36,7 @@ public class LikedAndBookmarkAdapter extends RecyclerView.Adapter<VideoViewHolde
     Context context;
     private ChildEventListener childEventListener;
 
+
     public LikedAndBookmarkAdapter(Context context, final DatabaseReference videoRef,
                                    final DatabaseReference sortRef, FirebaseStorage firebaseStorage) {
 
@@ -43,21 +44,23 @@ public class LikedAndBookmarkAdapter extends RecyclerView.Adapter<VideoViewHolde
         this.firebaseStorage = firebaseStorage;
         this.databaseReference = sortRef;
 
-        sortRef.keepSynced(true);
-        videoRef.keepSynced(true);
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                String key = dataSnapshot.getKey();
+                final String key = dataSnapshot.getKey();
 
                 sortKeys.add(key);
                 videoRef.child(key).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         VideoDetail videoDetail = dataSnapshot.getValue(VideoDetail.class);
+                        if (videoDetail != null) {
+                            videoDetailList.add(videoDetail);
+                            notifyItemInserted(videoDetailList.size() - 1);
+                        } else {
+                            sortRef.child(key).removeValue();
+                        }
 
-                        videoDetailList.add(videoDetail);
-                        notifyItemInserted(sortKeys.size() - 1);
                     }
 
                     @Override
@@ -81,7 +84,6 @@ public class LikedAndBookmarkAdapter extends RecyclerView.Adapter<VideoViewHolde
                 if (sortIndex > -1) {
                     // Remove data from the list
                     sortKeys.remove(sortIndex);
-
                     // Update the RecyclerView
                     notifyItemRemoved(sortIndex);
                 } else {
@@ -126,11 +128,13 @@ public class LikedAndBookmarkAdapter extends RecyclerView.Adapter<VideoViewHolde
                 context.startActivity(intent);
             }
         });
+
+        holder.iv_popUp_menu.setVisibility(View.GONE);
     }
 
     @Override
     public int getItemCount() {
-        return videoDetailList.size();
+        return sortKeys.size();
     }
 
     public void clearAdapter() {
@@ -138,4 +142,5 @@ public class LikedAndBookmarkAdapter extends RecyclerView.Adapter<VideoViewHolde
             databaseReference.removeEventListener(childEventListener);
         }
     }
+
 }

@@ -13,6 +13,7 @@ import com.google.firebase.auth.FirebaseAuth;
 @SuppressLint("Registered")
 public class BaseActivity extends AppCompatActivity {
 
+    public static final String ACTION_DATA_UPDATED = "com.jayjhaveri.learnhub.ACTION_DATA_UPDATED";
     private ProgressDialog progressDialog;
 
     public void showProgressDialog() {
@@ -35,8 +36,4 @@ public class BaseActivity extends AppCompatActivity {
         return FirebaseAuth.getInstance().getCurrentUser().getUid();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
 }
