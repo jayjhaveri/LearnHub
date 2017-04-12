@@ -112,6 +112,7 @@ public class NewVideoActivity extends BaseActivity {
     int notificationId = 1;
     //duration of video
     String duration;
+    private NotificationCompat.Builder notificationBuilder;
     //Firebase Reference
     private FirebaseStorage firebaseStorage;
     private StorageReference storageRef;
@@ -120,7 +121,7 @@ public class NewVideoActivity extends BaseActivity {
     private StorageReference fileRef;
     private SimpleExoPlayer exoPlayer;
     private DatabaseReference database;
-    private NotificationCompat.Builder notificationBuilder;
+
     private boolean saved = false;
     private Uri fileUri;
 

@@ -34,12 +34,18 @@ public class SearchAdapter extends RecyclerView.Adapter<VideoViewHolder> {
     DatabaseReference videoRef;
     Context context;
 
+    SearchEmptyListener searchEmptyListener;
+
     ChildEventListener childEventListener;
 
-    public SearchAdapter(Context context, DatabaseReference videoRef, FirebaseStorage firebaseStorage, final String searchQuery) {
+    public SearchAdapter(Context context, DatabaseReference videoRef,
+                         FirebaseStorage firebaseStorage,
+                         final String searchQuery,
+                         SearchEmptyListener searchEmptyListener) {
         this.videoRef = videoRef;
         this.context = context;
         this.firebaseStorage = firebaseStorage;
+        this.searchEmptyListener = searchEmptyListener;
         ChildEventListener childEventListener = new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -120,12 +126,20 @@ public class SearchAdapter extends RecyclerView.Adapter<VideoViewHolder> {
         holder.iv_popUp_menu.setVisibility(View.GONE);
     }
 
+
     @Override
     public int getItemCount() {
+        if (videoLists != null) {
+            searchEmptyListener.searchEmpty(videoLists.size());
+        }
         return videoLists.size();
     }
 
     public void cleanUpAdapter() {
         videoRef.removeEventListener(childEventListener);
+    }
+
+    public interface SearchEmptyListener {
+        public void searchEmpty(int size);
     }
 }

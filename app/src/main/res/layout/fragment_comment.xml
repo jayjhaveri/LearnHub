@@ -28,7 +28,7 @@
         android:layout_height="@dimen/comment_ci_send_width"
         android:layout_gravity="center"
         android:padding="@dimen/comment_ci_send_padding"
-        android:visibility="visible" />
+        android:visibility="gone" />
 
 
 </LinearLayout>

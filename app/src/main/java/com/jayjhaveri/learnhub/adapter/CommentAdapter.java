@@ -1,6 +1,7 @@
 package com.jayjhaveri.learnhub.adapter;
 
 import android.content.Context;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,7 +20,9 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.jayjhaveri.learnhub.Fragments.CommentFragment;
 import com.jayjhaveri.learnhub.R;
+import com.jayjhaveri.learnhub.VideoDetailActivity;
 import com.jayjhaveri.learnhub.model.Comment;
 
 import java.util.ArrayList;
@@ -178,7 +181,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
                         public boolean onMenuItemClick(MenuItem item) {
                             switch (item.getItemId()) {
                                 case R.id.edit:
-                                    edit(item);
+                                    edit(comment, context, commentIds.get(holder.getAdapterPosition()));
                                     return true;
                                 case R.id.delete:
                                     delete(item);
@@ -209,8 +212,12 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
 
     }
 
-    private void edit(MenuItem item) {
-
+    private void edit(Comment comment, Context context, String commentId) {
+        if (context instanceof VideoDetailActivity) {
+            CommentFragment fragment = CommentFragment.newInstance(comment.imageUrl, commentId);
+            FragmentTransaction transaction = ((VideoDetailActivity) context).getSupportFragmentManager().beginTransaction();
+            fragment.show(transaction, "dialog");
+        }
     }
 
     @Override

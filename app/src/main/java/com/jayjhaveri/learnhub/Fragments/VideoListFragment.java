@@ -1,13 +1,16 @@
 package com.jayjhaveri.learnhub.Fragments;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
@@ -37,7 +40,6 @@ import com.jayjhaveri.learnhub.R;
 import com.jayjhaveri.learnhub.SearchResultsActivity;
 import com.jayjhaveri.learnhub.UserVideosActivity;
 import com.jayjhaveri.learnhub.VideoDetailActivity;
-import com.jayjhaveri.learnhub.adapter.SearchAdapter;
 import com.jayjhaveri.learnhub.model.VideoDetail;
 import com.jayjhaveri.learnhub.viewholder.VideoViewHolder;
 
@@ -74,7 +76,7 @@ public abstract class VideoListFragment extends Fragment {
     private StorageReference imageReference;
     private StorageReference mProfileImageReference;
     private FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder> firebaseRecyclerAdapter;
-    private SearchAdapter searchAdapter;
+
     //Check isUserVideoActivity
     private boolean isUserVideoActivity = false;
     private boolean isLikedVideoActivity = false;
@@ -143,17 +145,7 @@ public abstract class VideoListFragment extends Fragment {
         Query postsQuery = getQuery(databaseReference);
 
 
-        if (isSearchActivity) {
-            DatabaseReference videosRef = databaseReference.child("videos");
-            if (search != null) {
-                searchAdapter = new SearchAdapter(getActivity(), videosRef, firebaseStorage, search);
-            }
-            rv_video_list.setAdapter(searchAdapter);
-            if (rv_video_list.getChildCount() != 0) {
-                tv_empty.setVisibility(View.VISIBLE);
-            }
-
-        } else if (isLikedVideoActivity || isBookMarkActivity) {
+        if (isLikedVideoActivity || isBookMarkActivity) {
 
             final DatabaseReference videosRef = databaseReference.child("videos");
             linearLayoutManager.setReverseLayout(false);
@@ -164,7 +156,7 @@ public abstract class VideoListFragment extends Fragment {
                 likes = "likes";
             }
             Query sortRef = databaseReference.child("users").
-                    child(getUid()).child(likes).orderByValue();
+                    child(getUid()).child(likes);
 
             likedAndBookmarkAdapter = new FirebaseIndexRecyclerAdapter<VideoDetail, VideoViewHolder>(VideoDetail.class,
                     R.layout.list_video,
@@ -174,13 +166,11 @@ public abstract class VideoListFragment extends Fragment {
 
                 @Override
                 protected void onDataChanged() {
-                    linearLayoutManager.setReverseLayout(true);
-                    linearLayoutManager.setStackFromEnd(true);
                     super.onDataChanged();
                 }
 
                 @Override
-                protected void populateViewHolder(VideoViewHolder viewHolder, final VideoDetail model, int position) {
+                protected void populateViewHolder(final VideoViewHolder viewHolder, final VideoDetail model, int position) {
                     DatabaseReference videoRef = getRef(position);
 
 
@@ -190,14 +180,14 @@ public abstract class VideoListFragment extends Fragment {
                     viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            startVideoDetailActivity(videoKey, model);
+                            startVideoDetailActivity(videoKey, model, viewHolder.iv_video_image);
                         }
                     });
 
                     viewHolder.bt_item.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            startVideoDetailActivity(videoKey, model);
+                            startVideoDetailActivity(videoKey, model, viewHolder.iv_video_image);
                         }
                     });
 
@@ -206,6 +196,7 @@ public abstract class VideoListFragment extends Fragment {
                 }
             };
             rv_video_list.setAdapter(likedAndBookmarkAdapter);
+
 
         } else {
             checkEmptyQuery(postsQuery);
@@ -231,7 +222,7 @@ public abstract class VideoListFragment extends Fragment {
                 }
 
                 @Override
-                protected void populateViewHolder(VideoViewHolder viewHolder, final VideoDetail model, final int position) {
+                protected void populateViewHolder(final VideoViewHolder viewHolder, final VideoDetail model, final int position) {
                     DatabaseReference videoRef = getRef(position);
 
                     imageReference = firebaseStorage.getReferenceFromUrl(model.imageUrl);
@@ -277,14 +268,14 @@ public abstract class VideoListFragment extends Fragment {
                     viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            startVideoDetailActivity(videoKey, model);
+                            startVideoDetailActivity(videoKey, model, viewHolder.iv_video_image);
                         }
                     });
 
                     viewHolder.bt_item.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            startVideoDetailActivity(videoKey, model);
+                            startVideoDetailActivity(videoKey, model, viewHolder.iv_video_image);
                         }
                     });
 
@@ -312,7 +303,7 @@ public abstract class VideoListFragment extends Fragment {
 
     }
 
-    private void checkEmptyQuery(Query postsQuery) {
+    protected void checkEmptyQuery(Query postsQuery) {
         postsQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -332,11 +323,26 @@ public abstract class VideoListFragment extends Fragment {
         });
     }
 
-    private void startVideoDetailActivity(String videoKey, VideoDetail model) {
+    private void startVideoDetailActivity(String videoKey, VideoDetail model, View imageView) {
         Intent intent = new Intent(getActivity(), VideoDetailActivity.class);
         intent.putExtra(VideoDetailActivity.EXTRA_POST_KEY, videoKey);
         intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_DETAIL, model);
-        startActivity(intent);
+
+        Pair<View, String> image = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            image = Pair.create(imageView, imageView.getTransitionName());
+        }
+
+        Bundle bundle = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            bundle = ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle();
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            startActivity(intent, bundle);
+        } else {
+            startActivity(intent);
+        }
+
     }
 
     public String getUid() {
@@ -350,8 +356,6 @@ public abstract class VideoListFragment extends Fragment {
         super.onDestroy();
         if (isLikedVideoActivity || isBookMarkActivity) {
 //            likedAndBookmarkAdapter.clearAdapter();
-        } else if (isSearchActivity) {
-            searchAdapter.cleanUpAdapter();
         }
     }
 
@@ -389,5 +393,6 @@ public abstract class VideoListFragment extends Fragment {
             outState.putInt("scroll", lastFirstVisiblePosition);
         }
     }
+
 
 }

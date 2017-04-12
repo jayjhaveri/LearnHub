@@ -13,7 +13,7 @@
     <dimen name="detail_toggle_desc_width">30dp</dimen>
     <dimen name="detail_toggle_desc_height">60dp</dimen>
     <dimen name="detail_toggle_margin">20dp</dimen>
-    <dimen name="detail_toggle_margin_top">16dp</dimen>
+    <dimen name="detail_toggle_margin_top">10dp</dimen>
     <dimen name="detail_tv_view_marginLeft">24dp</dimen>
     <dimen name="detail_tv_view_margin_top">10dp</dimen>
     <dimen name="detail_extraView_margin">24dp</dimen>
@@ -24,7 +24,7 @@
     <dimen name="detail_like_count_marginLeft">4dp</dimen>
     <dimen name="detail_iv_dislike_marginLeft">20dp</dimen>
     <dimen name="detail_tv_dislikeCount_marginLeft">4dp</dimen>
-    <dimen name="detail_tv_disLikeCount_margin_right">32dp</dimen>
+    <dimen name="detail_tv_disLikeCount_margin_right">20dp</dimen>
     <dimen name="detail_iv_download_marginRight">16dp</dimen>
     <dimen name="detail_bt_category_width">160dp</dimen>
     <dimen name="detail_bt_category_height">60dp</dimen>
@@ -34,7 +34,7 @@
     <dimen name="detail_ci_uploader_image_marginBottom">10dp</dimen>
     <dimen name="detail_ci_uploader_image_marginLeft">20dp</dimen>
     <dimen name="detail_tv_uploader_name_marginLef">30dp</dimen>
-    <dimen name="detail_uploader_name_marginStart">56dp</dimen>
+    <dimen name="detail_uploader_name_marginStart">20dp</dimen>
     <dimen name="detail_tv_comment_padding">32dp</dimen>
     <dimen name="detail_tv_comment_textSize">32sp</dimen>
     <dimen name="detail_tv_no_comments_margin">32dp</dimen>
@@ -61,5 +61,6 @@
     <!-- Paddings & Margins -->
     <dimen name="video_item_detail_like_margin">12sp</dimen>
     <dimen name="video_item_detail_play_fab_margin">40sp</dimen>
+    <dimen name="detail_bt_category_padding">6dp</dimen>
 
 </resources>

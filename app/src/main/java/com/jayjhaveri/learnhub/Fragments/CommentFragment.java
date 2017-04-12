@@ -20,6 +20,7 @@ import android.widget.EditText;
 import com.bumptech.glide.Glide;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.jayjhaveri.learnhub.R;
@@ -27,6 +28,9 @@ import com.jayjhaveri.learnhub.VideoDetailActivity;
 import com.jayjhaveri.learnhub.model.Comment;
 import com.mikepenz.google_material_typeface_library.GoogleMaterial;
 import com.mikepenz.iconics.IconicsDrawable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,6 +54,9 @@ public class CommentFragment extends DialogFragment {
     CircleImageView mCi_send_comment;
     String mImageUrl;
     VideoDetailActivity parent;
+    DatabaseReference databaseReference;
+    //Comment Id
+    String commentId;
 
     public CommentFragment() {
         // Required empty public constructor
@@ -65,10 +72,34 @@ public class CommentFragment extends DialogFragment {
         return commentFragment;
     }
 
+    public static CommentFragment newInstance(String imageUrl, String commentId) {
+        CommentFragment commentFragment = new CommentFragment();
+
+        Bundle args = new Bundle();
+        args.putString(EXTRA_PROFILE_IMAGE_URL, imageUrl);
+        args.putString("commentId", commentId);
+        commentFragment.setArguments(args);
+
+        return commentFragment;
+    }
+
     @OnClick(R.id.ci_send_comment)
     public void sendComment() {
-        videoComment();
+
+        if (commentId != null) {
+            editVideoComment();
+        } else {
+
+            videoComment();
+        }
         dismissAllowingStateLoss();
+    }
+
+    private void editVideoComment() {
+        DatabaseReference databaseReference = parent.commentsRef.child(commentId);
+        Map<String, Object> updateChildren = new HashMap<>();
+        updateChildren.put("text", mEt_comment.getText().toString());
+        databaseReference.updateChildren(updateChildren);
     }
 
     @Override
@@ -76,6 +107,9 @@ public class CommentFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
 //        setStyle(STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Panel);
         mImageUrl = getArguments().getString(EXTRA_PROFILE_IMAGE_URL);
+        if (getArguments().containsKey("commentId")) {
+            commentId = getArguments().getString("commentId");
+        }
     }
 
     @Override
@@ -91,24 +125,39 @@ public class CommentFragment extends DialogFragment {
                 .colorRes(R.color.colorPrimary)
                 .sizeDp(24));
 
+        if (commentId != null) {
+            parent.commentsRef.child(commentId).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    Comment comment = dataSnapshot.getValue(Comment.class);
+                    mEt_comment.setText(comment.text);
+                    mEt_comment.setSelection(mEt_comment.getText().length());
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+        }
+
         mEt_comment.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                mCi_send_comment.setVisibility(View.GONE);
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (charSequence.toString().trim().equals("")) {
-                    mCi_send_comment.setVisibility(View.VISIBLE);
-                }
+                mCi_send_comment.setVisibility(View.GONE);
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (editable.length() > 0) {
-                    mCi_send_comment.setVisibility(View.VISIBLE);
-                } else {
+                if (editable.length() == 0 || mEt_comment.getText().toString().trim().isEmpty()) {
                     mCi_send_comment.setVisibility(View.GONE);
+                } else {
+                    mCi_send_comment.setVisibility(View.VISIBLE);
                 }
 
             }
@@ -166,7 +215,7 @@ public class CommentFragment extends DialogFragment {
                                 profileImage = parent.firebaseAuth.getCurrentUser().getPhotoUrl().toString();
                             }
 
-                            String commentText = mEt_comment.getText().toString();
+                            String commentText = mEt_comment.getText().toString().trim();
 
                             Comment comment = new Comment(parent.getUid(), author, commentText, profileImage);
 

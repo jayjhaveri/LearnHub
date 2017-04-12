@@ -1,7 +1,9 @@
 package com.jayjhaveri.learnhub;
 
 import android.Manifest;
+import android.app.NotificationManager;
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.res.Configuration;
@@ -13,7 +15,9 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.widget.NestedScrollView;
@@ -53,6 +57,7 @@ import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 import com.jayjhaveri.learnhub.Fragments.CommentFragment;
@@ -165,12 +170,16 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
     ImageButton ib_exo_fullscreen;
     //perms
     String[] perms = {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE};
+    //Notification progress
+    NotificationManager mNotifyManager;
+    int notificationId = 2;
     private GestureDetector gestureDetector;
     //Database references
     private DatabaseReference mGlobalVideoRef;
     private DatabaseReference userVideoRef;
     private DatabaseReference categoryRef;
     private DatabaseReference userRef;
+    private NotificationCompat.Builder notificationBuilder;
     //
     private String postKey;
     //duration for update views
@@ -1067,6 +1076,18 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
     public void afterPermission() {
 
         if (EasyPermissions.hasPermissions(this, perms)) {
+
+            mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationBuilder = new NotificationCompat.Builder(this);
+
+            notificationBuilder.setContentTitle("Download")
+                    .setContentText("Download in progress")
+                    .setSmallIcon(android.R.drawable.stat_sys_download);
+
+            Toast.makeText(VideoDetailActivity.this,
+                    R.string.detail_file_download,
+                    Toast.LENGTH_SHORT).show();
+
             FirebaseStorage storage = FirebaseStorage.getInstance();
             final StorageReference storageReference = storage.getReferenceFromUrl(videoDetail.fileUrl);
             final File rootPath = new File(Environment.getExternalStorageDirectory(), "/LearnHub");
@@ -1074,37 +1095,78 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
             storageReference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
                 @Override
                 public void onSuccess(StorageMetadata storageMetadata) {
-                    String type = storageMetadata.getContentType();
+                    final String type = storageMetadata.getContentType();
                     String name = storageMetadata.getName();
-                    Log.d("meta data", name);
+                    Log.d("meta data", type);
                     final String extension = type.substring(type.lastIndexOf("/") + 1);
 
                     if (!rootPath.exists()) {
                         rootPath.mkdirs();
                     }
                     final File localFile = new File(rootPath, name + "." + extension);
-                    storageReference.getFile(localFile).addOnSuccessListener(
-                            new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+
+                    new Thread(
+                            new Runnable() {
+                                @SuppressWarnings("VisibleForTests")
                                 @Override
-                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                    Toast.makeText(VideoDetailActivity.this, R.string.file_donloaded, Toast.LENGTH_SHORT).show();
-                                    Intent openIntent = new Intent(Intent.ACTION_VIEW);
-                                    Uri fileUri =
-                                            FileProvider.getUriForFile(VideoDetailActivity.this,
-                                                    getApplicationContext().getPackageName() + ".provider",
-                                                    localFile);
-                                    openIntent.setDataAndType(fileUri, extension);
-                                    try {
-                                        startActivity(openIntent);
-                                    } catch (ActivityNotFoundException e) {
-                                        Toast.makeText(VideoDetailActivity.this, R.string.can_not_open,
-                                                Toast.LENGTH_LONG).show();
-                                    }
+                                public void run() {
+
+                                    mNotifyManager.notify(notificationId, notificationBuilder.build());
+
+                                    storageReference.getFile(localFile).addOnSuccessListener(
+                                            new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                                                @Override
+                                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+
+                                                    notificationBuilder.setContentText("Download complete");
+                                                    // Removes the progress bar
+                                                    notificationBuilder.setProgress(0, 0, false);
+                                                    notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_upload_done);
+                                                    mNotifyManager.notify(notificationId, notificationBuilder.build());
+                                                    mNotifyManager.cancel(notificationId);
+
+                                                    openFileSnackBar(rootPath, localFile, type);
+                                                }
+                                            }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
+                                        @Override
+                                        public void onProgress(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                                            notificationBuilder.setProgress(100, (int) progress, false);
+                                            mNotifyManager.notify(notificationId, notificationBuilder.build());
+                                        }
+                                    });
                                 }
-                            });
+                            }
+                    ).start();
+
+
                 }
             });
         }
+    }
+
+    private void openFileSnackBar(File rootPath, final File localFile, final String type) {
+        Snackbar snackbar = Snackbar.make(coordinatorLayout,
+                "File is stored in " + rootPath, Snackbar.LENGTH_LONG)
+                .setAction("OPEN", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent openIntent = new Intent(Intent.ACTION_VIEW);
+                        Uri fileUri =
+                                FileProvider.getUriForFile(VideoDetailActivity.this,
+                                        getApplicationContext().getPackageName() + ".provider",
+                                        localFile);
+                        openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                        openIntent.setDataAndType(fileUri, type);
+                        try {
+                            startActivity(openIntent);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(VideoDetailActivity.this, R.string.can_not_open,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+        snackbar.show();
     }
 
     private class MySimpleOnGestureListener extends GestureDetector.SimpleOnGestureListener implements View.OnTouchListener {

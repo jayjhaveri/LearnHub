@@ -55,4 +55,6 @@
     <string name="selected_file_desc">Your selected file:</string>
     <string name="file_upload_instrction">(This is optional if you have file like recipe file or pdf you can upload here)</string>
     <string name="empty_view">No items here</string>
+    <string name="detail_file_download">Your file is downloading....</string>
+    <string name="flag_inappropriate">Flag inappropriate</string>
 </resources>

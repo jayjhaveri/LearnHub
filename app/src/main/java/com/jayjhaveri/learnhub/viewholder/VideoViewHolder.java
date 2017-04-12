@@ -34,9 +34,9 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
     public Button bt_item;
     @BindView(R.id.iv_popUp_menu)
     public ImageView iv_popUp_menu;
-    Context context;
     @BindView(R.id.iv_video_image)
-    ImageView iv_video_image;
+    public ImageView iv_video_image;
+    Context context;
     @BindView(R.id.iv_profile_image)
     CircleImageView iv_profile_image;
     @BindView(R.id.tv_title)
