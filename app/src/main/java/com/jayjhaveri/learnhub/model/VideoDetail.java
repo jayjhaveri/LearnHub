@@ -55,7 +55,7 @@ public class VideoDetail implements Serializable {
 
         //Date last changed will always be set to ServerValue.TIMESTAMP
         HashMap<String, Object> timestamp = new HashMap<String, Object>();
-        timestamp.put("timestamp", ServerValue.TIMESTAMP);
+        timestamp.put("date", ServerValue.TIMESTAMP);
 
         this.timestamp = timestamp;
     }
@@ -111,13 +111,12 @@ public class VideoDetail implements Serializable {
     }
 
     @Exclude
-    public long getTimestamp() {
-        if (timestamp.containsKey("timestamp")) {
-
-            return (long) timestamp.get("timestamp");
+    public Long getTimestamp() {
+        if (timestamp.containsKey("date")) {
+            return (Long) timestamp.get("date");
         }
 
-        return 0;
+        return null;
     }
 
 

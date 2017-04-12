@@ -43,6 +43,7 @@ import de.hdodenhof.circleimageview.CircleImageView;
 public class CommentFragment extends DialogFragment {
 
     public static String EXTRA_PROFILE_IMAGE_URL = "extra_image";
+    public static String EXTRA_COMMENT_ID = "commentId";
 
     @BindView(R.id.et_comment)
     EditText mEt_comment;
@@ -77,7 +78,7 @@ public class CommentFragment extends DialogFragment {
 
         Bundle args = new Bundle();
         args.putString(EXTRA_PROFILE_IMAGE_URL, imageUrl);
-        args.putString("commentId", commentId);
+        args.putString(EXTRA_COMMENT_ID, commentId);
         commentFragment.setArguments(args);
 
         return commentFragment;
@@ -107,8 +108,8 @@ public class CommentFragment extends DialogFragment {
         super.onCreate(savedInstanceState);
 //        setStyle(STYLE_NO_TITLE, android.R.style.Theme_Holo_Light_Panel);
         mImageUrl = getArguments().getString(EXTRA_PROFILE_IMAGE_URL);
-        if (getArguments().containsKey("commentId")) {
-            commentId = getArguments().getString("commentId");
+        if (getArguments().containsKey(EXTRA_COMMENT_ID)) {
+            commentId = getArguments().getString(EXTRA_COMMENT_ID);
         }
     }
 

@@ -110,11 +110,11 @@ public class UserVideosActivity extends BaseActivity {
         Utilities.getUserVideosRef().child(getUid()).child(videoKey).removeValue();
         Utilities.getVideosRef().child(videoKey).removeValue();
         Utilities.getCategoryVideosRef().child(videoDetail.category).child(videoKey).removeValue();
+        Utilities.getCommentRef().child(videoKey).removeValue();
         // Create a storage reference from our app
 
 
         FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageRef = storage.getReference();
         StorageReference videoRef = storage.getReferenceFromUrl(videoDetail.videoUrl);
         StorageReference imageRef = storage.getReferenceFromUrl(videoDetail.imageUrl);
 

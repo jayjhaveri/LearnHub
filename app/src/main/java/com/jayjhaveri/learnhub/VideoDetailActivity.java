@@ -40,12 +40,12 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.danikula.videocache.HttpProxyCacheServer;
-import com.firebase.ui.auth.AuthUI;
 import com.github.rubensousa.previewseekbar.PreviewSeekBar;
 import com.github.rubensousa.previewseekbar.PreviewSeekBarLayout;
 import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -71,7 +71,6 @@ import com.mikepenz.iconics.IconicsDrawable;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -95,6 +94,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
     private static final int RC_SIGN_IN_DISLIKE = 103;
     private static final int RC_SIGN_IN_COMMENT = 104;
     private static final int RC_SIGN_IN_FILE_DOWNLOAD = 105;
+    private static final int RC_SIGN_IN_BOOKMARK = 106;
     private static final int PICK_FILE_REQUEST_CODE = 2;
     private static final String TAG = VideoDetail.class.getSimpleName();
     public FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
@@ -192,6 +192,9 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
     //Adapter
     private CommentAdapter commentAdapter;
 
+    //ValueEventListener
+    private ValueEventListener valueEventListener;
+
     @OnClick(R.id.tv_comment_here)
     public void onCommentClick() {
         if (firebaseAuth.getCurrentUser() != null) {
@@ -199,13 +202,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             fragment.show(transaction, "dialog");
         } else {
-            startActivityForResult(
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                            .build(),
-                    RC_SIGN_IN_COMMENT
-            );
+            Utilities.starAuthActivity(VideoDetailActivity.this, RC_SIGN_IN_COMMENT);
         }
     }
 
@@ -226,20 +223,19 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
     @OnClick(R.id.iv_bookmark)
     public void onBookmarkClick() {
         Log.d("OnBookmark", "CLick lcikc");
-        onBookmark();
+        if (firebaseAuth.getCurrentUser() != null) {
+            userRef = databaseReference.child("users").child(getUid());
+            onBookmark();
+        } else {
+            Utilities.starAuthActivity(VideoDetailActivity.this, RC_SIGN_IN_BOOKMARK);
+        }
     }
 
     @OnClick(R.id.iv_file_download)
     public void onDownloadClick() {
 
         if (firebaseAuth.getCurrentUser() == null) {
-            startActivityForResult(
-                    AuthUI.getInstance()
-                            .createSignInIntentBuilder()
-                            .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                            .build(),
-                    RC_SIGN_IN_FILE_DOWNLOAD
-            );
+            Utilities.starAuthActivity(VideoDetailActivity.this, RC_SIGN_IN_FILE_DOWNLOAD);
         } else {
 
             if (!EasyPermissions.hasPermissions(this, perms)) {
@@ -267,134 +263,209 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
 
         // Get post key from intent
         postKey = getIntent().getStringExtra(EXTRA_POST_KEY);
-        videoDetail = (VideoDetail) getIntent().getSerializableExtra(EXTRA_VIDEO_DETAIL);
-
-        HttpProxyCacheServer proxy = BaseApplication.getProxy(this);
-        String proxyUrl = proxy.getProxyUrl(videoDetail.videoUrl);
-        playerView = (SimpleExoPlayerView) findViewById(R.id.player_view);
-        SimpleExoPlayerView previewPlayerView
-                = (SimpleExoPlayerView) findViewById(R.id.previewPlayerView);
-        seekBar = (PreviewSeekBar) playerView.findViewById(R.id.exo_progress);
-        seekBarLayout = (PreviewSeekBarLayout) findViewById(R.id.previewSeekBarLayout);
-        ib_exo_fullscreen = (ImageButton) findViewById(R.id.exo_fullscreen);
-        ib_exo_fullscreen.setImageDrawable(
-                new IconicsDrawable(VideoDetailActivity.this)
-                        .icon(GoogleMaterial.Icon.gmd_fullscreen)
-                        .color(ContextCompat.getColor(this, R.color.player_text_color))
-                        .sizeDp(24)
-        );
-        seekBarLayout.setTintColorResource(R.color.colorPrimary);
-
-
-        tv_video_title_control = (TextView) playerView.findViewById(R.id.tv_video_title_control);
-        tv_video_title_control.setText(videoDetail.title);
-
-
-        seekBar.addOnSeekBarChangeListener(this);
-        exoPlayerManager = new ExoPlayerManager(playerView, previewPlayerView, seekBarLayout,
-                proxyUrl);
-
-        //set like counter
-        tv_like_count.setText(String.valueOf(videoDetail.likeCount));
-
-        //Set dislikecount
-        tv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
-
-        //set video title
-        tv_video_title.setText(videoDetail.title);
-
-        //set uplader name
-        tv_uploader_name.setText(videoDetail.author);
-
-        tv_video_description.setText(videoDetail.body);
-
-        //set category name
-        bt_category.setText(videoDetail.category);
-
-        topView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
-                    ImageView arrow = (ImageView) findViewById(R.id.toggle_description_view);
-                    View extra = findViewById(R.id.detailExtraView);
-                    if (extra.getVisibility() == View.VISIBLE) {
-                        extra.setVisibility(View.GONE);
-                        arrow.setImageResource(R.drawable.arrow_down);
-                    } else {
-                        extra.setVisibility(View.VISIBLE);
-                        arrow.setImageResource(R.drawable.arrow_up);
-                    }
-                }
-                return true;
-            }
-        });
-
-        //Set uploader image
-        Glide.with(this)
-                .load(videoDetail.profileImage)
-                .into(ci_uploader_image);
-
-
-        //Detect full screen
-        requestFullScreenIfLandscape();
-
-        //init listener
-        initExoFullScreenListener();
-
-        initDatabaseReferences();
-
-        initLikeListener();
-
-
-        if (firebaseAuth.getCurrentUser() != null) {
-            Uri photoUri = firebaseAuth.getCurrentUser().getPhotoUrl();
-            Glide.with(this)
-                    .load(photoUri)
-                    .into(ci_user_image);
-
-            if (videoDetail.likes.containsKey(getUid())) {
-                Log.d(TAG, "liked");
-                iv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
-            } else {
-                iv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
-            }
-
-            if (videoDetail.disLikes.containsKey(getUid())) {
-                Log.d(TAG, "liked");
-                iv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
-            } else {
-                iv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
-            }
-
-        }
-
-        MySimpleOnGestureListener listener = new MySimpleOnGestureListener();
-        gestureDetector = new GestureDetector(this, listener);
-        gestureDetector.setIsLongpressEnabled(false);
-        playerView.setOnTouchListener(listener);
-
-        commentAdapter = new CommentAdapter(VideoDetailActivity.this, commentsRef, this);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
+//        videoDetail = (VideoDetail) getIntent().getSerializableExtra(EXTRA_VIDEO_DETAIL);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(VideoDetailActivity.this);
         linearLayoutManager.setReverseLayout(true);
         rv_comments.setLayoutManager(linearLayoutManager);
+
+        commentsRef = databaseReference.child("video-comments").child(postKey);
+        commentAdapter = new CommentAdapter(VideoDetailActivity.this, commentsRef, VideoDetailActivity.this);
         rv_comments.setAdapter(commentAdapter);
-        //get total duration
-        tv_view_count.setText(getString(R.string.views_string, String.valueOf(videoDetail.views)));
 
-        tv_video_description.setMovementMethod(LinkMovementMethod.getInstance());
+        valueEventListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                videoDetail = dataSnapshot.getValue(VideoDetail.class);
 
-        if (videoDetail.fileUrl != null) {
 
-            iv_file_download.setImageDrawable(
-                    new IconicsDrawable(VideoDetailActivity.this)
-                            .icon(GoogleMaterial.Icon.gmd_attach_file)
-                            .sizeRes(R.dimen.detail_item_bookmark)
-            );
-        } else {
-            iv_file_download.setVisibility(View.GONE);
-        }
-        String formattedDate = getFormattedDate();
-        tv_upload_date.setText(formattedDate);
+                HttpProxyCacheServer proxy = BaseApplication.getProxy(VideoDetailActivity.this);
+                String proxyUrl = proxy.getProxyUrl(videoDetail.videoUrl);
+                playerView = (SimpleExoPlayerView) findViewById(R.id.player_view);
+                SimpleExoPlayerView previewPlayerView
+                        = (SimpleExoPlayerView) findViewById(R.id.previewPlayerView);
+                seekBar = (PreviewSeekBar) playerView.findViewById(R.id.exo_progress);
+                seekBarLayout = (PreviewSeekBarLayout) findViewById(R.id.previewSeekBarLayout);
+                ib_exo_fullscreen = (ImageButton) findViewById(R.id.exo_fullscreen);
+                ib_exo_fullscreen.setImageDrawable(
+                        new IconicsDrawable(VideoDetailActivity.this)
+                                .icon(GoogleMaterial.Icon.gmd_fullscreen)
+                                .color(ContextCompat.getColor(VideoDetailActivity.this, R.color.player_text_color))
+                                .sizeDp(24)
+                );
+                seekBarLayout.setTintColorResource(R.color.colorPrimary);
+
+
+                tv_video_title_control = (TextView) playerView.findViewById(R.id.tv_video_title_control);
+                tv_video_title_control.setText(videoDetail.title);
+
+
+                seekBar.addOnSeekBarChangeListener(VideoDetailActivity.this);
+                exoPlayerManager = new ExoPlayerManager(playerView, previewPlayerView, seekBarLayout,
+                        proxyUrl);
+
+                //set like counter
+                tv_like_count.setText(String.valueOf(videoDetail.likeCount));
+
+                //Set dislikecount
+                tv_dislike_count.setText(String.valueOf(videoDetail.disLikeCount));
+
+                //set video title
+                tv_video_title.setText(videoDetail.title);
+
+                //set uplader name
+                tv_uploader_name.setText(videoDetail.author);
+
+                tv_video_description.setText(videoDetail.body);
+
+                //set category name
+                bt_category.setText(videoDetail.category);
+
+                topView.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                        if (event.getAction() == android.view.MotionEvent.ACTION_UP) {
+                            ImageView arrow = (ImageView) findViewById(R.id.toggle_description_view);
+                            View extra = findViewById(R.id.detailExtraView);
+                            if (extra.getVisibility() == View.VISIBLE) {
+                                extra.setVisibility(View.GONE);
+                                arrow.setImageResource(R.drawable.arrow_down);
+                            } else {
+                                extra.setVisibility(View.VISIBLE);
+                                arrow.setImageResource(R.drawable.arrow_up);
+                            }
+                        }
+                        return true;
+                    }
+                });
+
+                //Set uploader image
+                Glide.with(VideoDetailActivity.this)
+                        .load(videoDetail.profileImage)
+                        .into(ci_uploader_image);
+
+
+                //Detect full screen
+                requestFullScreenIfLandscape();
+
+                //init listener
+                initExoFullScreenListener();
+
+                initDatabaseReferences();
+
+                initLikeListener();
+
+                if (firebaseAuth.getCurrentUser() != null) {
+                    Uri photoUri = firebaseAuth.getCurrentUser().getPhotoUrl();
+                    Glide.with(VideoDetailActivity.this)
+                            .load(photoUri)
+                            .into(ci_user_image);
+
+                    if (videoDetail.likes.containsKey(getUid())) {
+                        Log.d(TAG, "liked");
+                        iv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
+                    } else {
+                        iv_like.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
+                    }
+
+                    if (videoDetail.disLikes.containsKey(getUid())) {
+                        Log.d(TAG, "liked");
+                        iv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.blue_like));
+                    } else {
+                        iv_dislike.setColorFilter(ContextCompat.getColor(VideoDetailActivity.this, R.color.darkColor));
+                    }
+
+                }
+
+                MySimpleOnGestureListener listener = new MySimpleOnGestureListener();
+                gestureDetector = new GestureDetector(VideoDetailActivity.this, listener);
+                gestureDetector.setIsLongpressEnabled(false);
+                playerView.setOnTouchListener(listener);
+
+                //get total duration
+                tv_view_count.setText(getString(R.string.views_string, String.valueOf(videoDetail.views)));
+
+                tv_video_description.setMovementMethod(LinkMovementMethod.getInstance());
+
+                if (videoDetail.fileUrl != null) {
+
+                    iv_file_download.setImageDrawable(
+                            new IconicsDrawable(VideoDetailActivity.this)
+                                    .icon(GoogleMaterial.Icon.gmd_attach_file)
+                                    .sizeRes(R.dimen.detail_item_bookmark)
+                    );
+                } else {
+                    iv_file_download.setVisibility(View.GONE);
+                }
+                String formattedDate = getFormattedDate();
+                tv_upload_date.setText(formattedDate);
+
+                onStart();
+                onResume();
+
+                //bookmark
+                iv_bookmark.setImageDrawable(
+                        new IconicsDrawable(VideoDetailActivity.this)
+                                .icon(GoogleMaterial.Icon.gmd_bookmark_border)
+                                .sizeRes(R.dimen.detail_item_bookmark)
+                );
+
+                Handler handlerView = new Handler();
+                handlerView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        viewsCount(mGlobalVideoRef);
+                        viewsCount(categoryRef);
+                        viewsCount(userVideoRef);
+                    }
+                }, 3000);
+
+                if (firebaseAuth.getCurrentUser() != null) {
+
+                    userRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            User user = dataSnapshot.getValue(User.class);
+
+                            if (user == null) {
+                                return;
+                            }
+
+                            if (firebaseAuth.getCurrentUser() != null) {
+                                if (user.bookmarks.containsKey(postKey)) {
+                                    iv_bookmark.setImageDrawable(
+                                            new IconicsDrawable(VideoDetailActivity.this)
+                                                    .icon(GoogleMaterial.Icon.gmd_bookmark)
+                                                    .sizeRes(R.dimen.detail_item_bookmark)
+                                    );
+                                } else {
+                                    iv_bookmark.setImageDrawable(
+                                            new IconicsDrawable(VideoDetailActivity.this)
+                                                    .icon(GoogleMaterial.Icon.gmd_bookmark_border)
+                                                    .sizeRes(R.dimen.detail_item_bookmark)
+                                    );
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        };
+
+
+        FirebaseDatabase.getInstance().getReference().child("videos").
+                child(postKey).addListenerForSingleValueEvent(valueEventListener);
+
     }
 
     private String getFormattedDate() {
@@ -454,13 +525,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                     updateUserLike(userRef);
 
                 } else {
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                                    .build(),
-                            RC_SIGN_IN_LIKE
-                    );
+                    Utilities.starAuthActivity(VideoDetailActivity.this, RC_SIGN_IN_LIKE);
                 }
             }
         });
@@ -474,13 +539,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                     onDisLikeClicked(categoryRef);
                     updateUserDisLike(userRef);
                 } else {
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                                    .build(),
-                            RC_SIGN_IN_DISLIKE
-                    );
+                    Utilities.starAuthActivity(VideoDetailActivity.this, RC_SIGN_IN_DISLIKE);
                 }
             }
         });
@@ -592,7 +651,6 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
         mGlobalVideoRef = databaseReference.child("videos").child(postKey);
         userVideoRef = databaseReference.child("user-videos").child(videoDetail.uid).child(postKey);
         categoryRef = databaseReference.child("categories").child(videoDetail.category).child(postKey);
-        commentsRef = databaseReference.child("video-comments").child(postKey);
         if (firebaseAuth.getCurrentUser() != null) {
             userRef = databaseReference.child("users").child(getUid());
         }
@@ -846,6 +904,10 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                     return;
                 }
                 afterPermission();
+            } else if (requestCode == RC_SIGN_IN_BOOKMARK) {
+                Utilities.putDataToUsers(Utilities.getLoginUser(firebaseAuth));
+                userRef = databaseReference.child("users").child(getUid());
+                onBookmark();
             }
         }
     }
@@ -853,77 +915,53 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
     @Override
     public void onStart() {
         super.onStart();
-
-        exoPlayerManager.onStart();
-        if (firebaseAuth.getCurrentUser() != null) {
-
-            userRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    User user = dataSnapshot.getValue(User.class);
-
-                    if (firebaseAuth.getCurrentUser() != null) {
-                        if (user.bookmarks.containsKey(postKey)) {
-                            iv_bookmark.setImageDrawable(
-                                    new IconicsDrawable(VideoDetailActivity.this)
-                                            .icon(GoogleMaterial.Icon.gmd_bookmark)
-                                            .sizeRes(R.dimen.detail_item_bookmark)
-                            );
-                        } else {
-                            iv_bookmark.setImageDrawable(
-                                    new IconicsDrawable(VideoDetailActivity.this)
-                                            .icon(GoogleMaterial.Icon.gmd_bookmark_border)
-                                            .sizeRes(R.dimen.detail_item_bookmark)
-                            );
-                        }
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
+        if (exoPlayerManager != null) {
+            exoPlayerManager.onStart();
         }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        exoPlayerManager.onResume();
+        if (exoPlayerManager != null) {
+            exoPlayerManager.onResume();
+        }
+//        exoPlayerManager.onResume();
 
-        Handler handlerView = new Handler();
-        handlerView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                viewsCount(mGlobalVideoRef);
-                viewsCount(categoryRef);
-                viewsCount(userVideoRef);
-            }
-        }, 3000);
 
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        exoPlayerManager.onPause();
+        if (exoPlayerManager != null) {
+
+            exoPlayerManager.onPause();
+        }
 
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        exoPlayerManager.onStop();
+        if (exoPlayerManager != null) {
+
+            exoPlayerManager.onStop();
+        }
         commentAdapter.cleanupListener();
+
+        FirebaseDatabase.getInstance().getReference().
+                child("videos").child(postKey).removeEventListener(valueEventListener);
     }
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
         // load video progress
         if (fromUser) {
+            if (exoPlayerManager != null) {
 
-            exoPlayerManager.preview((float) progress / seekBar.getMax());
+                exoPlayerManager.preview((float) progress / seekBar.getMax());
+            }
         }
     }
 
@@ -1105,41 +1143,37 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                     }
                     final File localFile = new File(rootPath, name + "." + extension);
 
-                    new Thread(
-                            new Runnable() {
-                                @SuppressWarnings("VisibleForTests")
+
+                    mNotifyManager.notify(notificationId, notificationBuilder.build());
+
+                    storageReference.getFile(localFile).addOnSuccessListener(
+                            new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                                 @Override
-                                public void run() {
+                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
 
+                                    notificationBuilder.setContentText("Download complete");
+                                    // Removes the progress bar
+                                    notificationBuilder.setProgress(0, 0, false);
+                                    notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_upload_done);
                                     mNotifyManager.notify(notificationId, notificationBuilder.build());
+                                    mNotifyManager.cancel(notificationId);
 
-                                    storageReference.getFile(localFile).addOnSuccessListener(
-                                            new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                                                @Override
-                                                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-
-                                                    notificationBuilder.setContentText("Download complete");
-                                                    // Removes the progress bar
-                                                    notificationBuilder.setProgress(0, 0, false);
-                                                    notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_upload_done);
-                                                    mNotifyManager.notify(notificationId, notificationBuilder.build());
-                                                    mNotifyManager.cancel(notificationId);
-
-                                                    openFileSnackBar(rootPath, localFile, type);
-                                                }
-                                            }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
-                                        @Override
-                                        public void onProgress(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                                            notificationBuilder.setProgress(100, (int) progress, false);
-                                            mNotifyManager.notify(notificationId, notificationBuilder.build());
-                                        }
-                                    });
+                                    openFileSnackBar(rootPath, localFile, type);
                                 }
-                            }
-                    ).start();
+                            }).addOnProgressListener(new OnProgressListener<FileDownloadTask.TaskSnapshot>() {
+                        @SuppressWarnings("VisibleForTests")
+                        @Override
+                        public void onProgress(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                            notificationBuilder.setProgress(100, (int) progress, false);
+                            mNotifyManager.notify(notificationId, notificationBuilder.build());
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
 
-
+                        }
+                    });
                 }
             });
         }
@@ -1147,7 +1181,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
 
     private void openFileSnackBar(File rootPath, final File localFile, final String type) {
         Snackbar snackbar = Snackbar.make(coordinatorLayout,
-                "File is stored in " + rootPath, Snackbar.LENGTH_LONG)
+                "File is stored in " + rootPath, Snackbar.LENGTH_INDEFINITE)
                 .setAction("OPEN", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

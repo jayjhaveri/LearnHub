@@ -3,4 +3,5 @@
 
     <dimen name="list_video_frame_margin">200dp</dimen>
     <dimen name="list_category_tv_category">32sp</dimen>
+    <dimen name="frag_categories_recycler">80dp</dimen>
 </resources>

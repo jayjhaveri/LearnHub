@@ -118,7 +118,7 @@ public class SearchAdapter extends RecyclerView.Adapter<VideoViewHolder> {
             public void onClick(View view) {
                 Intent intent = new Intent(context, VideoDetailActivity.class);
                 intent.putExtra(VideoDetailActivity.EXTRA_POST_KEY, videoListKeys.get(holder.getAdapterPosition()));
-                intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_DETAIL, videoDetail);
+//                intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_DETAIL, videoDetail);
                 context.startActivity(intent);
             }
         });

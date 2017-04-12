@@ -44,23 +44,18 @@
     <!-- Video Item Detail View Dimensions-->
     <!-- Text Size -->
     <dimen name="video_item_detail_title_text_size">40sp</dimen>
-    <dimen name="video_item_detail_views_text_size">28dp</dimen>
+    <dimen name="video_item_detail_views_text_size">24sp</dimen>
     <dimen name="video_item_detail_likes_text_size">28sp</dimen>
     <dimen name="video_item_detail_uploader_text_size">28sp</dimen>
     <dimen name="video_item_detail_upload_date_text_size">28sp</dimen>
     <dimen name="video_item_detail_description_text_size">28sp</dimen>
-    <dimen name="video_item_detail_next_text_size">32sp</dimen>
-    <dimen name="video_item_detail_similar_text_size">32sp</dimen>
     <!-- Elements Size -->
-    <dimen name="video_item_detail_thumbnail_image_height">400dp</dimen>
     <dimen name="video_item_detail_uploader_image_size">100dp</dimen>
     <dimen name="video_item_detail_like_image_height">36sp</dimen>
     <dimen name="video_item_detail_like_image_width">36sp</dimen>
-    <dimen name="channel_avatar_size">100dp</dimen>
-    <dimen name="channel_avatar_halo_size">120dp</dimen>
     <!-- Paddings & Margins -->
-    <dimen name="video_item_detail_like_margin">12sp</dimen>
-    <dimen name="video_item_detail_play_fab_margin">40sp</dimen>
     <dimen name="detail_bt_category_padding">6dp</dimen>
+    <dimen name="detail_frame_recycler_marginBottom">28dp</dimen>
+    <dimen name="frag_categories_recycler">50dp</dimen>
 
 </resources>

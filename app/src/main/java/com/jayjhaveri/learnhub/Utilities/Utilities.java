@@ -1,8 +1,10 @@
 package com.jayjhaveri.learnhub.Utilities;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.firebase.ui.auth.AuthUI;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -13,6 +15,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.jayjhaveri.learnhub.R;
 import com.jayjhaveri.learnhub.model.User;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,7 +92,22 @@ public class Utilities {
         return FirebaseDatabase.getInstance().getReference().child("videos");
     }
 
-    public interface RemoveItemList {
-        public void removeItem(int position);
+    public static DatabaseReference getCommentRef() {
+        return FirebaseDatabase.getInstance().getReference().child("video-comments");
     }
+
+    public static DatabaseReference getUserRef() {
+        return FirebaseDatabase.getInstance().getReference().child("users");
+    }
+
+    public static void starAuthActivity(Activity context, final int RC_SIGN_IN) {
+        context.startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
+                        .build(),
+                RC_SIGN_IN
+        );
+    }
+
 }

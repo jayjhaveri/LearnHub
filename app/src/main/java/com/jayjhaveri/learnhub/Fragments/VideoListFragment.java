@@ -1,9 +1,10 @@
 package com.jayjhaveri.learnhub.Fragments;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +15,7 @@ import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -55,6 +57,10 @@ import static com.jayjhaveri.learnhub.BaseActivity.ACTION_DATA_UPDATED;
 public abstract class VideoListFragment extends Fragment {
 
     public static final String EXTRA_VIDEO_UID = "video_uid";
+    public static final String EXTRA_VIDEO_KEY = "userVideo";
+    public static final String EXTRA_SCROLL = "scroll";
+    public static final String EXTRA_VIDEO_CATEGORY = "category";
+
     public static final String ACTION_UPDATED = "com.jayjhaveri.learnhub.ACTION_DATA_UPDATED";
     private static final String TAG = "VideoListFragment";
     // [END define_database_reference]
@@ -144,158 +150,174 @@ public abstract class VideoListFragment extends Fragment {
         // Set up FirebaseRecyclerAdapter with the Query
         Query postsQuery = getQuery(databaseReference);
 
+        if (isNetworkAvailable()) {
+            if (isLikedVideoActivity || isBookMarkActivity) {
 
-        if (isLikedVideoActivity || isBookMarkActivity) {
+                final DatabaseReference videosRef = databaseReference.child("videos");
+                linearLayoutManager.setReverseLayout(false);
+                linearLayoutManager.setStackFromEnd(false);
+                if (isBookMarkActivity) {
+                    likes = "bookmarks";
+                } else {
+                    likes = "likes";
+                }
+                Query sortRef = databaseReference.child("users").
+                        child(getUid()).child(likes);
 
-            final DatabaseReference videosRef = databaseReference.child("videos");
-            linearLayoutManager.setReverseLayout(false);
-            linearLayoutManager.setStackFromEnd(false);
-            if (isBookMarkActivity) {
-                likes = "bookmarks";
+                likedAndBookmarkAdapter = new FirebaseIndexRecyclerAdapter<VideoDetail, VideoViewHolder>(VideoDetail.class,
+                        R.layout.list_video,
+                        VideoViewHolder.class,
+                        sortRef,
+                        videosRef) {
+
+                    @Override
+                    protected void onDataChanged() {
+                        int i = getItemCount();
+                        super.onDataChanged();
+                    }
+
+
+                    @Override
+                    protected void onCancelled(DatabaseError error) {
+                        Log.d("DatabaseError", "" + error);
+                        super.onCancelled(error);
+                    }
+
+                    @Override
+                    protected void populateViewHolder(final VideoViewHolder viewHolder, final VideoDetail model, int position) {
+                        DatabaseReference videoRef = getRef(position);
+
+                        int i = getItemCount();
+                        imageReference = firebaseStorage.getReferenceFromUrl(model.imageUrl);
+                        final String videoKey = videoRef.getKey();
+
+                        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                startVideoDetailActivity(videoKey, model, viewHolder.iv_video_image);
+                            }
+                        });
+
+                        viewHolder.bt_item.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                startVideoDetailActivity(videoKey, model, viewHolder.iv_video_image);
+                            }
+                        });
+
+
+                        viewHolder.bindToPost(getActivity(), model, imageReference);
+                    }
+
+                };
+                rv_video_list.setAdapter(likedAndBookmarkAdapter);
+
+
             } else {
-                likes = "likes";
-            }
-            Query sortRef = databaseReference.child("users").
-                    child(getUid()).child(likes);
-
-            likedAndBookmarkAdapter = new FirebaseIndexRecyclerAdapter<VideoDetail, VideoViewHolder>(VideoDetail.class,
-                    R.layout.list_video,
-                    VideoViewHolder.class,
-                    sortRef,
-                    videosRef) {
-
-                @Override
-                protected void onDataChanged() {
-                    super.onDataChanged();
-                }
-
-                @Override
-                protected void populateViewHolder(final VideoViewHolder viewHolder, final VideoDetail model, int position) {
-                    DatabaseReference videoRef = getRef(position);
+                checkEmptyQuery(postsQuery);
+                firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder>(VideoDetail.class,
+                        R.layout.list_video,
+                        VideoViewHolder.class,
+                        postsQuery) {
 
 
-                    imageReference = firebaseStorage.getReferenceFromUrl(model.imageUrl);
-                    final String videoKey = videoRef.getKey();
+                    @Override
+                    public int getItemViewType(int position) {
+                        return super.getItemViewType(position);
+                    }
 
-                    viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            startVideoDetailActivity(videoKey, model, viewHolder.iv_video_image);
-                        }
-                    });
+                    @Override
+                    protected void onDataChanged() {
+                        Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
+                        updateWidgets(activity);
+                        activity.sendBroadcast(dataUpdatedIntent);
+                        linearLayoutManager.setReverseLayout(true);
+                        linearLayoutManager.setStackFromEnd(true);
+                        super.onDataChanged();
+                    }
 
-                    viewHolder.bt_item.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            startVideoDetailActivity(videoKey, model, viewHolder.iv_video_image);
-                        }
-                    });
+                    @Override
+                    protected void populateViewHolder(final VideoViewHolder viewHolder, final VideoDetail model, final int position) {
+                        DatabaseReference videoRef = getRef(position);
 
-
-                    viewHolder.bindToPost(getActivity(), model, imageReference);
-                }
-            };
-            rv_video_list.setAdapter(likedAndBookmarkAdapter);
-
-
-        } else {
-            checkEmptyQuery(postsQuery);
-            firebaseRecyclerAdapter = new FirebaseRecyclerAdapter<VideoDetail, VideoViewHolder>(VideoDetail.class,
-                    R.layout.list_video,
-                    VideoViewHolder.class,
-                    postsQuery) {
+                        imageReference = firebaseStorage.getReferenceFromUrl(model.imageUrl);
+                        final String videoKey = videoRef.getKey();
 
 
-                @Override
-                public int getItemViewType(int position) {
-                    return super.getItemViewType(position);
-                }
-
-                @Override
-                protected void onDataChanged() {
-                    Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
-                    updateWidgets(activity);
-                    activity.sendBroadcast(dataUpdatedIntent);
-                    linearLayoutManager.setReverseLayout(true);
-                    linearLayoutManager.setStackFromEnd(true);
-                    super.onDataChanged();
-                }
-
-                @Override
-                protected void populateViewHolder(final VideoViewHolder viewHolder, final VideoDetail model, final int position) {
-                    DatabaseReference videoRef = getRef(position);
-
-                    imageReference = firebaseStorage.getReferenceFromUrl(model.imageUrl);
-                    final String videoKey = videoRef.getKey();
-
-
-                    if (isUserVideoActivity && getUid() != null) {
-                        viewHolder.bt_item.setVisibility(View.GONE);
-                        if (getUid().equals(model.uid)) {
-                            viewHolder.iv_popUp_menu.setOnClickListener(new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    PopupMenu popup = new PopupMenu(getActivity(), view);
-                                    MenuInflater inflater = popup.getMenuInflater();
-                                    inflater.inflate(R.menu.menu_comment_option, popup.getMenu());
-                                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                                        @Override
-                                        public boolean onMenuItemClick(MenuItem item) {
-                                            switch (item.getItemId()) {
-                                                case R.id.edit:
-                                                    edit(videoKey, model.category);
-                                                    return true;
-                                                case R.id.delete:
-                                                    DialogFragment newFragment = AlertDialogFragment.newInstance(
-                                                            videoKey, model);
-                                                    newFragment.show(getFragmentManager(), "dialog");
-                                                    return true;
-                                                default:
-                                                    return false;
+                        if (isUserVideoActivity && getUid() != null) {
+                            viewHolder.bt_item.setVisibility(View.GONE);
+                            if (getUid().equals(model.uid)) {
+                                viewHolder.iv_popUp_menu.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        PopupMenu popup = new PopupMenu(getActivity(), view);
+                                        MenuInflater inflater = popup.getMenuInflater();
+                                        inflater.inflate(R.menu.menu_comment_option, popup.getMenu());
+                                        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                                            @Override
+                                            public boolean onMenuItemClick(MenuItem item) {
+                                                switch (item.getItemId()) {
+                                                    case R.id.edit:
+                                                        edit(videoKey, model.category);
+                                                        return true;
+                                                    case R.id.delete:
+                                                        DialogFragment newFragment = AlertDialogFragment.newInstance(
+                                                                videoKey, model);
+                                                        newFragment.show(getFragmentManager(), "dialog");
+                                                        return true;
+                                                    default:
+                                                        return false;
+                                                }
                                             }
-                                        }
-                                    });
-                                    popup.show();
-                                }
-                            });
+                                        });
+                                        popup.show();
+                                    }
+                                });
+                            }
+                        } else {
+                            viewHolder.iv_popUp_menu.setVisibility(View.GONE);
+                            viewHolder.bt_item.setVisibility(View.VISIBLE);
                         }
-                    } else {
-                        viewHolder.iv_popUp_menu.setVisibility(View.GONE);
-                        viewHolder.bt_item.setVisibility(View.VISIBLE);
+
+
+                        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                startVideoDetailActivity(videoKey, model, viewHolder.iv_video_image);
+                            }
+                        });
+
+                        viewHolder.bt_item.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                startVideoDetailActivity(videoKey, model, viewHolder.iv_video_image);
+                            }
+                        });
+
+
+                        viewHolder.bindToPost(getActivity(), model, imageReference);
+
+                        if (getItemCount() == 0) {
+                            tv_empty.setVisibility(View.VISIBLE);
+                        } else {
+                            tv_empty.setVisibility(View.GONE);
+                        }
                     }
-
-
-                    viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            startVideoDetailActivity(videoKey, model, viewHolder.iv_video_image);
-                        }
-                    });
-
-                    viewHolder.bt_item.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            startVideoDetailActivity(videoKey, model, viewHolder.iv_video_image);
-                        }
-                    });
-
-
-                    viewHolder.bindToPost(getActivity(), model, imageReference);
-
-                    if (getItemCount() == 0) {
-                        tv_empty.setVisibility(View.VISIBLE);
-                    } else {
-                        tv_empty.setVisibility(View.GONE);
-                    }
-                }
-            };
-            rv_video_list.setAdapter(firebaseRecyclerAdapter);
+                };
+                rv_video_list.setAdapter(firebaseRecyclerAdapter);
+            }
+        } else {
+            tv_empty.setText(R.string.no_internet);
+            tv_empty.setVisibility(View.VISIBLE);
+            pb_video_list.setVisibility(View.GONE);
         }
+
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (savedInstanceState != null && savedInstanceState.containsKey("scroll")) {
-                    int i = savedInstanceState.getInt("scroll");
+                if (savedInstanceState != null && savedInstanceState.containsKey(EXTRA_SCROLL)) {
+                    int i = savedInstanceState.getInt(EXTRA_SCROLL);
                     rv_video_list.scrollToPosition(i);
                 }
             }
@@ -323,25 +345,25 @@ public abstract class VideoListFragment extends Fragment {
         });
     }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
     private void startVideoDetailActivity(String videoKey, VideoDetail model, View imageView) {
         Intent intent = new Intent(getActivity(), VideoDetailActivity.class);
         intent.putExtra(VideoDetailActivity.EXTRA_POST_KEY, videoKey);
-        intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_DETAIL, model);
+//        intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_DETAIL, model);
 
         Pair<View, String> image = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             image = Pair.create(imageView, imageView.getTransitionName());
         }
 
-        Bundle bundle = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            bundle = ActivityOptions.makeSceneTransitionAnimation(getActivity()).toBundle();
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-            startActivity(intent, bundle);
-        } else {
+
             startActivity(intent);
-        }
 
     }
 
@@ -378,8 +400,8 @@ public abstract class VideoListFragment extends Fragment {
 
     private void edit(String videoKey, String category) {
         Intent intent = new Intent(getActivity(), EditVideoActivity.class);
-        intent.putExtra("userVideo", videoKey);
-        intent.putExtra("category", category);
+        intent.putExtra(EXTRA_VIDEO_KEY, videoKey);
+        intent.putExtra(EXTRA_VIDEO_CATEGORY, category);
         getActivity().startActivity(intent);
     }
 
@@ -390,7 +412,7 @@ public abstract class VideoListFragment extends Fragment {
 
             int lastFirstVisiblePosition = ((LinearLayoutManager) rv_video_list.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
 //        outState.putParcelable("scroll", rv_video_list.getLayoutManager().onSaveInstanceState());
-            outState.putInt("scroll", lastFirstVisiblePosition);
+            outState.putInt(EXTRA_SCROLL, lastFirstVisiblePosition);
         }
     }
 

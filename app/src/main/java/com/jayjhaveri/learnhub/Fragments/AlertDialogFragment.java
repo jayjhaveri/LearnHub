@@ -17,10 +17,12 @@ import com.jayjhaveri.learnhub.model.VideoDetail;
 
 public class AlertDialogFragment extends DialogFragment {
 
+    static final String EXTRA_TITLE = "title";
+
     public static AlertDialogFragment newInstance(String videoKey, VideoDetail videoDetail) {
         AlertDialogFragment frag = new AlertDialogFragment();
         Bundle args = new Bundle();
-        args.putInt("title", R.string.alert_dialog_two_buttons_title);
+        args.putInt(EXTRA_TITLE, R.string.alert_dialog_two_buttons_title);
         args.putString(VideoDetailActivity.EXTRA_POST_KEY, videoKey);
         args.putSerializable(VideoDetailActivity.EXTRA_VIDEO_DETAIL, videoDetail);
         frag.setArguments(args);
@@ -29,7 +31,7 @@ public class AlertDialogFragment extends DialogFragment {
 
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        int title = getArguments().getInt("title");
+        int title = getArguments().getInt(EXTRA_TITLE);
         final String videoKey = getArguments().getString(VideoDetailActivity.EXTRA_POST_KEY);
         final VideoDetail videoDetail = (VideoDetail) getArguments().getSerializable(VideoDetailActivity.EXTRA_VIDEO_DETAIL);
 

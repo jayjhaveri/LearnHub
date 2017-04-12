@@ -291,10 +291,11 @@ public class NewVideoActivity extends BaseActivity {
         exoPlayer.setPlayWhenReady(true);
     }
 
+    @SuppressWarnings("VisibleForTests")
     private int uploadVideo() {
 
-        final String title = et_title.getText().toString();
-        final String desc = et_desc.getText().toString();
+        final String title = et_title.getText().toString().trim();
+        final String desc = et_desc.getText().toString().trim();
 
         if (TextUtils.isEmpty(title)) {
             et_title.setError("Required");
@@ -331,22 +332,9 @@ public class NewVideoActivity extends BaseActivity {
         Utilities.writeStringPreference(this, getString(R.string.video_uri), videoUri.toString());
 
 
-
-
-
-        final String userId = getUid();
-
         Toast.makeText(this, "Upload in progress.....", Toast.LENGTH_LONG).show();
 
-
-        new Thread(
-                new Runnable() {
-                    @Override
-                    @SuppressWarnings("VisibleForTests")
-                    public void run() {
-
-
-                        final UploadTask uploadTaskImage = imageUploadRef.putFile(imageUri);
+        final UploadTask uploadTaskImage = imageUploadRef.putFile(imageUri);
 
 
                         uploadTaskImage.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -452,10 +440,6 @@ public class NewVideoActivity extends BaseActivity {
                                 mNotifyManager.notify(notificationId, notificationBuilder.build());
                             }
                         });
-
-                    }
-                }
-        ).start();
 
         return 0;
     }

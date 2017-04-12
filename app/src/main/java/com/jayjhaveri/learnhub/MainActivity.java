@@ -1,6 +1,7 @@
 package com.jayjhaveri.learnhub;
 
 import android.Manifest;
+import android.app.ActivityOptions;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Color;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.provider.MediaStore;
@@ -207,13 +209,7 @@ public class MainActivity extends BaseActivity {
 
                     openImageIntent();
                 } else {
-                    startActivityForResult(
-                            AuthUI.getInstance()
-                                    .createSignInIntentBuilder()
-                                    .setProviders(Arrays.asList(new AuthUI.IdpConfig.Builder(AuthUI.GOOGLE_PROVIDER).build()))
-                                    .build(),
-                            RC_SIGN_IN_OPEN_IMAGE_INTENT
-                    );
+                    Utilities.starAuthActivity(MainActivity.this, RC_SIGN_IN_OPEN_IMAGE_INTENT);
                 }
             }
         });
@@ -222,7 +218,16 @@ public class MainActivity extends BaseActivity {
         tabLayout.setupWithViewPager(viewPagerMain);
         viewPagerMain.setCurrentItem(currentItemForViewpager);
 
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         if (auth.getCurrentUser() != null) {
             loadAuthNavigationDrawer(toolbar);
         } else {
@@ -283,8 +288,7 @@ public class MainActivity extends BaseActivity {
                         likedVideos,
                         bookmarkVideos,
                         new DividerDrawerItem(),
-                        logout,
-                        shareApp
+                        logout
                 ).withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
@@ -294,18 +298,42 @@ public class MainActivity extends BaseActivity {
                             case 1:
                                 Intent intent = new Intent(MainActivity.this, UserVideosActivity.class);
                                 intent.putExtra(UserVideosActivity.EXTRA_VIDEO_UID, auth.getCurrentUser().getUid());
-                                startActivity(intent);
+                                Bundle bundle = null;
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                    bundle = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle();
+                                }
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    startActivity(intent, bundle);
+                                } else {
+                                    startActivity(intent);
+                                }
                                 break;
                             case 2:
 
                                 Intent likedVideoIntent = new Intent(MainActivity.this, LikeVideosActivity.class);
                                 likedVideoIntent.putExtra(LikeVideosActivity.EXTRA_IS_LIKE, "likes");
-                                startActivity(likedVideoIntent);
+                                Bundle bundleLikeVideo = null;
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                    bundle = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle();
+                                }
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    startActivity(likedVideoIntent, bundleLikeVideo);
+                                } else {
+                                    startActivity(likedVideoIntent);
+                                }
                                 break;
 
                             case 3:
                                 Intent bookmarkIntent = new Intent(MainActivity.this, BookmarkActivity.class);
-                                startActivity(bookmarkIntent);
+                                Bundle bundleBookmark = null;
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                                    bundleBookmark = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle();
+                                }
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                                    startActivity(bookmarkIntent, bundleBookmark);
+                                } else {
+                                    startActivity(bookmarkIntent);
+                                }
                                 break;
 
                             case 5:
@@ -319,18 +347,6 @@ public class MainActivity extends BaseActivity {
                                         });
                                 break;
                             case 6:
-                                try {
-                                    Intent i = new Intent(Intent.ACTION_SEND);
-                                    i.setType("text/plain");
-                                    i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
-                                    String sAux = "WE MOVE YOUR IMAGE\n\n";
-                                    String designUrl = "https://play.google.com/store/apps/details?id=com.qwesys.designroot";
-                                    sAux = sAux + designUrl + "\n\n";
-                                    i.putExtra(Intent.EXTRA_TEXT, sAux);
-                                    startActivity(Intent.createChooser(i, "choose one"));
-                                } catch (Exception e) {
-                                    //e.toString();
-                                }
                                 break;
                         }
                         return false;
@@ -442,9 +458,7 @@ public class MainActivity extends BaseActivity {
 
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.action_search) {
+        if (id == R.id.action_search) {
             return true;
         }
 

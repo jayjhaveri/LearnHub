@@ -1,17 +1,15 @@
 <resources>
-    <string name="app_name">LearnHub</string>
+    <string name="app_name" translatable="false">LearnHub</string>
     <string name="action_settings">Settings</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="categories_fragment_title">Categories</string>
     <string name="home_fragment_title">Home</string>
     <string name="most_popular_fragment_title">Most Popular</string>
     <string name="most_recent_fragment_title">Most Recent</string>
     <string name="title_activity_new_video">Upload your video</string>
-    <string name="session_uri">session_uri</string>
+    <string name="session_uri" translatable="false">session_uri</string>
     <string name="utility">utility</string>
-    <string name="video_uri">videoUri</string>
+    <string name="video_uri" translatable="false">videoUri</string>
     <string name="title_video">Title</string>
     <string name="description_video">Description</string>
     <string name="title_activity_category">CategoryActivity</string>
@@ -20,14 +18,11 @@
     <string name="detail_likes_img_view_description">Likes</string>
     <string name="detail_dislikes_img_view_description">Dislike</string>
     <string name="detail_uploader_thumbnail_view_description">Uploader\\\'s userpic thumbnail</string>
-    <string name="next_video_title">Next Video</string>
-    <string name="similar_videos_btn_text">Similar videos</string>
     <string name="views_string">%s views</string>
     <string name="expand_detail_arrow_down">Expand Detail</string>
     <string name="exo_conterols_replay_desc">Replay</string>
     <string name="exo_control_full_screen_description">Full Screen</string>
     <string name="popup_menu_comment_description">Popup menu</string>
-    <string name="title_video_detail">Title</string>
     <string name="write_comment_video_detail">Write comment here</string>
     <string name="edit_menu_comment">Edit</string>
     <string name="delete_menu_comment">Delete</string>
@@ -56,5 +51,9 @@
     <string name="file_upload_instrction">(This is optional if you have file like recipe file or pdf you can upload here)</string>
     <string name="empty_view">No items here</string>
     <string name="detail_file_download">Your file is downloading....</string>
-    <string name="flag_inappropriate">Flag inappropriate</string>
+    <string name="no_internet">No Internet available please try again later</string>
+
+    <string name="dialog_transaction" translatable="false">dialog</string>
+    <string name="category_name" translatable="false">name</string>
+    <string name="hello_blank_fragment">Hello Fragment</string>
 </resources>

@@ -2,7 +2,6 @@ package com.jayjhaveri.learnhub.viewholder;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -80,7 +79,7 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
                 .into(iv_profile_image);
 
         PrettyTime p = new PrettyTime();
-        if (videoDetail.getTimestamp() != 0) {
+        if (videoDetail.getTimestamp() != null) {
             tv_upload_time.setText(p.format(new Date(videoDetail.getTimestamp())));
         }
         tv_views.setText(videoDetail.views + " views" + " • ");
@@ -88,9 +87,6 @@ public class VideoViewHolder extends RecyclerView.ViewHolder {
         tv_duration.setText(videoDetail.duration);
     }
 
-    private void delete(MenuItem item) {
-
-    }
 
 
     private String getUid() {

@@ -16,6 +16,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.jayjhaveri.learnhub.Fragments.VideoListFragment;
 import com.jayjhaveri.learnhub.Utilities.Utilities;
 import com.jayjhaveri.learnhub.model.VideoDetail;
 
@@ -52,9 +53,9 @@ public class EditVideoActivity extends BaseActivity {
 
         ButterKnife.bind(this);
 
-        if (getIntent().getStringExtra("userVideo") != null) {
-            videoKey = getIntent().getStringExtra("userVideo");
-            category = getIntent().getStringExtra("category");
+        if (getIntent().getStringExtra(VideoListFragment.EXTRA_VIDEO_KEY) != null) {
+            videoKey = getIntent().getStringExtra(VideoListFragment.EXTRA_VIDEO_KEY);
+            category = getIntent().getStringExtra(VideoListFragment.EXTRA_VIDEO_CATEGORY);
         }
 
         databaseReference = FirebaseDatabase.getInstance().getReference();

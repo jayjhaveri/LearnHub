@@ -197,12 +197,6 @@
                     android:contentDescription="@string/bookmark_this_video"
                     android:tint="@color/darkColor" />
 
-                <ImageView
-                    android:id="@+id/iv_flag_inappropriate"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/flag_inappropriate" />
-
                 <android.support.v4.widget.Space
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -335,7 +329,8 @@
 
                 <FrameLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="@dimen/detail_frame_recycler_marginBottom">
 
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/rv_comments"

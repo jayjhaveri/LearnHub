@@ -216,7 +216,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.CommentV
         if (context instanceof VideoDetailActivity) {
             CommentFragment fragment = CommentFragment.newInstance(comment.imageUrl, commentId);
             FragmentTransaction transaction = ((VideoDetailActivity) context).getSupportFragmentManager().beginTransaction();
-            fragment.show(transaction, "dialog");
+            fragment.show(transaction, context.getString(R.string.dialog_transaction));
         }
     }
 

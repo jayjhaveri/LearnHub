@@ -8,5 +8,7 @@
        android:id="@+id/rv_categories"
        android:layout_width="match_parent"
        android:layout_height="match_parent"
+       android:layout_marginLeft="@dimen/frag_categories_recycler"
+       android:layout_marginRight="@dimen/frag_categories_recycler"
        tools:listitem="@layout/list_category" />
 </FrameLayout>

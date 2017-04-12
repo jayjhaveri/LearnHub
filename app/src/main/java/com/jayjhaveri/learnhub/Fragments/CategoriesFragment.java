@@ -63,7 +63,7 @@ public class CategoriesFragment extends Fragment implements CategoryAdapter.Cate
     @Override
     public void onCategoryClick(String categoryName) {
         Intent intent = new Intent(getActivity(), CategoryActivity.class);
-        intent.putExtra("name",categoryName);
+        intent.putExtra(getString(R.string.category_name), categoryName);
         startActivity(intent);
     }
 }
