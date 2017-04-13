@@ -56,4 +56,37 @@
     <string name="dialog_transaction" translatable="false">dialog</string>
     <string name="category_name" translatable="false">name</string>
     <string name="hello_blank_fragment">Hello Fragment</string>
+    <string name="success_upload">Success</string>
+    <string name="file_duration_can_not_upload">can not upload this, file is longer than 10 min</string>
+    <string name="home_navigation">Home</string>
+    <string name="my_videos_navigation">My Videos</string>
+    <string name="liked_videos_navigation">Liked videos</string>
+    <string name="bookmar_videos_navigation">Bookmark videos</string>
+    <string name="logout_navigation">Logout</string>
+    <string name="share_app_navigation">Share App</string>
+    <string name="extra_likedVideoIntent_likes">likes</string>
+    <string name="login_drawer_navigation">Login</string>
+    <string name="no_uri">no_uri</string>
+    <string name="total_views">views</string>
+    <string name="download_notification">Download</string>
+    <string name="download_in_progress">Download in progress</string>
+    <string name="download_complete">Download complete</string>
+    <string name="file_is_stored">File is stored in</string>
+    <string name="open_snackbar">OPEN</string>
+    <string name="et_title_error">Required</string>
+    <string name="image_required">Image is required</string>
+    <string name="upload_video">Upload</string>
+    <string name="upload_in_progress">Upload in progress</string>
+    <string name="upload_progress">Upload in progress.....</string>
+    <string name="upload_complete">Upload complete</string>
+    <string name="select_image">Select Image</string>
+    <string name="select_file">Select file</string>
+    <string name="loading_progress">Loading...</string>
+    <string name="select_source">Select Source</string>
+    <string name="cooking_category">Cooking</string>
+    <string name="computer_category">Computer</string>
+    <string name="health_category">Health</string>
+    <string name="medical_category">Medical</string>
+    <string name="science_category">Science</string>
+    <string name="need_permission">For store file permission is required</string>
 </resources>

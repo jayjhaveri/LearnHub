@@ -81,10 +81,10 @@ public class BaseApplication extends Application {
     }
 
     private void loadCategoryList() {
-        categoryList.add(new Category(GoogleMaterial.Icon.gmd_restaurant, "Cooking"));
-        categoryList.add(new Category(GoogleMaterial.Icon.gmd_computer, "Computer"));
-        categoryList.add(new Category(GoogleMaterial.Icon.gmd_local_cafe, "Health"));
-        categoryList.add(new Category(GoogleMaterial.Icon.gmd_local_hospital, "Medical"));
-        categoryList.add(new Category(GoogleMaterial.Icon.gmd_school, "Science"));
+        categoryList.add(new Category(GoogleMaterial.Icon.gmd_restaurant, getString(R.string.cooking_category)));
+        categoryList.add(new Category(GoogleMaterial.Icon.gmd_computer, getString(R.string.computer_category)));
+        categoryList.add(new Category(GoogleMaterial.Icon.gmd_local_cafe, getString(R.string.health_category)));
+        categoryList.add(new Category(GoogleMaterial.Icon.gmd_local_hospital, getString(R.string.medical_category)));
+        categoryList.add(new Category(GoogleMaterial.Icon.gmd_school, getString(R.string.science_category)));
     }
 }

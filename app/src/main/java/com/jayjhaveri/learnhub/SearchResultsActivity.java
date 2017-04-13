@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 
 import com.jayjhaveri.learnhub.Fragments.SearchResultsActivityFragment;
@@ -38,7 +37,6 @@ public class SearchResultsActivity extends AppCompatActivity {
         if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
             searchQuery = intent.getStringExtra(SearchManager.QUERY);
             //use the searchQuery to search your data somehow
-            Log.d("search", searchQuery);
 
             getSupportActionBar().setTitle(searchQuery);
 

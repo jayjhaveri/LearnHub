@@ -24,7 +24,7 @@ public class CategoryActivity extends MainActivity {
         tabLayout.setTabMode(TabLayout.MODE_FIXED);
         tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-        categoryName = getIntent().getStringExtra("name");
+        categoryName = getIntent().getStringExtra(getString(R.string.category_name));
 
         getSupportActionBar().setTitle(categoryName);
 

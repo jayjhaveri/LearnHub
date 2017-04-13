@@ -123,7 +123,7 @@ public class MainActivity extends BaseActivity {
         galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
 
         // Chooser of filesystem options.
-        final Intent chooserIntent = Intent.createChooser(galleryIntent, "Select Source");
+        final Intent chooserIntent = Intent.createChooser(galleryIntent, getString(R.string.select_source));
 
         // Add the camera options.
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, cameraIntents.toArray(new Parcelable[cameraIntents.size()]));
@@ -150,7 +150,7 @@ public class MainActivity extends BaseActivity {
                 long timeInMillisec = Long.parseLong(time);
 
                 if (timeInMillisec > 600000) {
-                    Toast.makeText(this, "can not upload", Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.file_duration_can_not_upload, Toast.LENGTH_LONG).show();
                 } else {
                     Intent intent = new Intent(MainActivity.this, NewVideoActivity.class);
                     intent.putExtra(EXTRA_URI, selectedVideoUri.toString());
@@ -170,20 +170,6 @@ public class MainActivity extends BaseActivity {
         }
     }
 
-   /* public String getPath(Uri uri) {
-        String[] projection = {MediaStore.Images.Media.DATA};
-        Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
-        if (cursor != null) {
-            // HERE YOU WILL GET A NULLPOINTER IF CURSOR IS NULL
-            // THIS CAN BE, IF YOU USED OI FILE MANAGER FOR PICKING THE MEDIA
-            int column_index = cursor
-                    .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-            cursor.moveToFirst();
-            return cursor.getString(column_index);
-        } else
-            return null;
-    }*/
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -192,7 +178,7 @@ public class MainActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle("LearnHub");
+        getSupportActionBar().setTitle(getString(R.string.app_name));
         auth = FirebaseAuth.getInstance();
 
         IconicsDrawable icon = new IconicsDrawable(this)
@@ -252,27 +238,27 @@ public class MainActivity extends BaseActivity {
 
 
         PrimaryDrawerItem home = new PrimaryDrawerItem().withIdentifier(1)
-                .withName("Home").withIcon(GoogleMaterial.Icon.gmd_home)
+                .withName(R.string.home_navigation).withIcon(GoogleMaterial.Icon.gmd_home)
                 .withIconColorRes(R.color.colorPrimaryDark)
                 .withSelectedTextColorRes(R.color.colorPrimaryDark);
 
-        PrimaryDrawerItem mydVideos = new PrimaryDrawerItem().withIdentifier(2).withName("My Videos")
+        PrimaryDrawerItem mydVideos = new PrimaryDrawerItem().withIdentifier(2).withName(R.string.my_videos_navigation)
                 .withIcon(GoogleMaterial.Icon.gmd_personal_video)
                 .withSelectedTextColorRes(R.color.colorPrimaryDark);
 
-        PrimaryDrawerItem likedVideos = new PrimaryDrawerItem().withIdentifier(3).withName("Liked videos")
+        PrimaryDrawerItem likedVideos = new PrimaryDrawerItem().withIdentifier(3).withName(R.string.liked_videos_navigation)
                 .withIcon(GoogleMaterial.Icon.gmd_thumb_up)
                 .withSelectedTextColorRes(R.color.colorPrimaryDark);
 
-        PrimaryDrawerItem bookmarkVideos = new PrimaryDrawerItem().withIdentifier(4).withName("Bookmark videos")
+        PrimaryDrawerItem bookmarkVideos = new PrimaryDrawerItem().withIdentifier(4).withName(R.string.bookmar_videos_navigation)
                 .withIcon(GoogleMaterial.Icon.gmd_bookmark)
                 .withSelectedTextColorRes(R.color.colorPrimaryDark);
 
-        PrimaryDrawerItem logout = new PrimaryDrawerItem().withIdentifier(5).withName("Logout")
+        PrimaryDrawerItem logout = new PrimaryDrawerItem().withIdentifier(5).withName(R.string.logout_navigation)
                 .withIcon(GoogleMaterial.Icon.gmd_exit_to_app)
                 .withSelectedTextColorRes(R.color.colorPrimaryDark);
 
-        PrimaryDrawerItem shareApp = new PrimaryDrawerItem().withIdentifier(6).withName("Share App")
+        PrimaryDrawerItem shareApp = new PrimaryDrawerItem().withIdentifier(6).withName(R.string.share_app_navigation)
                 .withIcon(GoogleMaterial.Icon.gmd_share)
                 .withSelectedTextColorRes(R.color.colorPrimaryDark);
 
@@ -311,10 +297,10 @@ public class MainActivity extends BaseActivity {
                             case 2:
 
                                 Intent likedVideoIntent = new Intent(MainActivity.this, LikeVideosActivity.class);
-                                likedVideoIntent.putExtra(LikeVideosActivity.EXTRA_IS_LIKE, "likes");
+                                likedVideoIntent.putExtra(LikeVideosActivity.EXTRA_IS_LIKE, getString(R.string.extra_likedVideoIntent_likes));
                                 Bundle bundleLikeVideo = null;
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                                    bundle = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle();
+                                    bundleLikeVideo = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this).toBundle();
                                 }
                                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                                     startActivity(likedVideoIntent, bundleLikeVideo);
@@ -364,12 +350,12 @@ public class MainActivity extends BaseActivity {
 
 
         PrimaryDrawerItem home = new PrimaryDrawerItem().withIdentifier(1)
-                .withName("Home").withIcon(GoogleMaterial.Icon.gmd_home)
+                .withName(getString(R.string.drawer_item_home)).withIcon(GoogleMaterial.Icon.gmd_home)
                 .withIconColorRes(R.color.colorPrimaryDark)
                 .withSelectedTextColorRes(R.color.colorPrimaryDark);
 
         PrimaryDrawerItem logIn = new PrimaryDrawerItem().withIdentifier(1)
-                .withName("Login").withIcon(GoogleMaterial.Icon.gmd_account_circle)
+                .withName(R.string.login_drawer_navigation).withIcon(GoogleMaterial.Icon.gmd_account_circle)
                 .withIconColorRes(R.color.colorPrimaryDark)
                 .withSelectedTextColorRes(R.color.colorPrimaryDark);
 
@@ -399,18 +385,6 @@ public class MainActivity extends BaseActivity {
                             case 2:
                                 break;
                             case 5:
-                                try {
-                                    Intent i = new Intent(Intent.ACTION_SEND);
-                                    i.setType("text/plain");
-                                    i.putExtra(Intent.EXTRA_SUBJECT, getString(R.string.app_name));
-                                    String sAux = "WE MOVE YOUR IMAGE\n\n";
-                                    String designUrl = "https://play.google.com/store/apps/details?id=com.qwesys.designroot";
-                                    sAux = sAux + designUrl + "\n\n";
-                                    i.putExtra(Intent.EXTRA_TEXT, sAux);
-                                    startActivity(Intent.createChooser(i, "choose one"));
-                                } catch (Exception e) {
-                                    //e.toString();
-                                }
                                 break;
                         }
                         return false;
@@ -472,7 +446,8 @@ public class MainActivity extends BaseActivity {
         Uri videoUri = Uri.parse(Utilities.readStringPreference(this,
                 getString(R.string.video_uri)));
 
-        if (!sessionUri.toString().equals("no_uri") && !videoUri.toString().equals("no_uri")) {
+        if (!sessionUri.toString().equals(getString(R.string.no_uri)) &&
+                !videoUri.toString().equals(getString(R.string.no_uri))) {
             //Firebase Reference
 
 
@@ -496,7 +471,7 @@ public class MainActivity extends BaseActivity {
             }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    Toast.makeText(MainActivity.this, "Success", Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, R.string.success_upload, Toast.LENGTH_LONG).show();
                     Utilities.deleteStringPreference(MainActivity.this, getString(R.string.session_uri));
                     Utilities.deleteStringPreference(MainActivity.this, getString(R.string.video_uri));
                 }
@@ -517,7 +492,7 @@ public class MainActivity extends BaseActivity {
             return;
         }
 
-        if (!Utilities.readStringPreference(this, getString(R.string.session_uri)).equals("no_uri")) {
+        if (!Utilities.readStringPreference(this, getString(R.string.session_uri)).equals(getString(R.string.no_uri))) {
             Uri videoUri = Uri.parse(Utilities.readStringPreference(this, getString(R.string.video_uri)));
 
             StorageReference mStorageRef = FirebaseStorage.getInstance().getReference().

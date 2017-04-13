@@ -45,7 +45,6 @@ public class WidgetListRemoteViewFactory implements RemoteViewsService.RemoteVie
             public void onDataChange(DataSnapshot dataSnapshot) {
                 videoDetailList.clear();
                 videoKeys.clear();
-                System.out.println("There are " + dataSnapshot.getChildrenCount() + " blog posts");
                 for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
                     videoDetailList.add(snapshot.getValue(VideoDetail.class));
                     videoKeys.add(snapshot.getKey());
@@ -91,9 +90,7 @@ public class WidgetListRemoteViewFactory implements RemoteViewsService.RemoteVie
 
         String videoTitle = videoDetailList.get(i).title;
         String author = videoDetailList.get(i).author;
-        String imageUrl = videoDetailList.get(i).imageUrl;
         long views = videoDetailList.get(i).views;
-        String profileImage = videoDetailList.get(i).profileImage;
 
         PrettyTime p = new PrettyTime();
         long timestamp = 0;
@@ -103,30 +100,9 @@ public class WidgetListRemoteViewFactory implements RemoteViewsService.RemoteVie
 
         remoteView.setTextViewText(R.id.tv_title, videoTitle);
         remoteView.setTextViewText(R.id.tv_author, author);
-        remoteView.setTextViewText(R.id.tv_views, String.valueOf(views) + " views");
+        remoteView.setTextViewText(R.id.tv_views, String.valueOf(views) + context.getString(R.string.total_views));
         remoteView.setTextViewText(R.id.tv_upload_time, p.format(new Date(timestamp)) + " • ");
 
-
-
-        /*Glide.with(context)
-                .load(imageUrl)
-                .asBitmap()
-                .into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                        remoteView.setImageViewBitmap(R.id.iv_video_image,resource);
-                    }
-                });
-
-        Glide.with(context)
-                .load(profileImage)
-                .asBitmap()
-                .into(new SimpleTarget<Bitmap>() {
-                    @Override
-                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                        remoteView.setImageViewBitmap(R.id.iv_profile_image, resource);
-                    }
-                });*/
         Intent intent = new Intent();
         intent.putExtra(VideoDetailActivity.EXTRA_VIDEO_DETAIL, videoDetailList.get(i));
         intent.putExtra(VideoDetailActivity.EXTRA_POST_KEY, videoKeys.get(i));

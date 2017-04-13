@@ -209,7 +209,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
     @OnClick(R.id.bt_category)
     public void onCategoryClick() {
         Intent intent = new Intent(this, CategoryActivity.class);
-        intent.putExtra("name", videoDetail.category);
+        intent.putExtra(getString(R.string.category_name), videoDetail.category);
         startActivity(intent);
     }
 
@@ -222,7 +222,6 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
 
     @OnClick(R.id.iv_bookmark)
     public void onBookmarkClick() {
-        Log.d("OnBookmark", "CLick lcikc");
         if (firebaseAuth.getCurrentUser() != null) {
             userRef = databaseReference.child("users").child(getUid());
             onBookmark();
@@ -572,7 +571,6 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
             @Override
             public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                 // Transaction completed
-                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
             }
         });
     }
@@ -604,7 +602,6 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
             @Override
             public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                 // Transaction completed
-                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
             }
         });
     }
@@ -682,7 +679,6 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
             @Override
             public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                 // Transaction completed
-                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
             }
         });
     }
@@ -733,7 +729,6 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
             @Override
             public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                 // Transaction completed
-                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
             }
         });
     }
@@ -800,7 +795,6 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
             @Override
             public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                 // Transaction completed
-                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
             }
         });
     }
@@ -864,7 +858,6 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
             @Override
             public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
                 // Transaction completed
-                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
             }
         });
     }
@@ -900,7 +893,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                 Utilities.putDataToUsers(Utilities.getLoginUser(firebaseAuth));
 
                 if (!EasyPermissions.hasPermissions(this, perms)) {
-                    EasyPermissions.requestPermissions(this, "need permissions", RC_STORAGE, perms);
+                    EasyPermissions.requestPermissions(this, getString(R.string.need_permission), RC_STORAGE, perms);
                     return;
                 }
                 afterPermission();
@@ -1072,7 +1065,6 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
             }, 3000);
 
         } else {
-            Log.d("videoDetail", "back");
             super.onBackPressed();
         }
     }
@@ -1118,8 +1110,8 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
             mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationBuilder = new NotificationCompat.Builder(this);
 
-            notificationBuilder.setContentTitle("Download")
-                    .setContentText("Download in progress")
+            notificationBuilder.setContentTitle(getString(R.string.download_notification))
+                    .setContentText(getString(R.string.download_in_progress))
                     .setSmallIcon(android.R.drawable.stat_sys_download);
 
             Toast.makeText(VideoDetailActivity.this,
@@ -1129,13 +1121,11 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
             FirebaseStorage storage = FirebaseStorage.getInstance();
             final StorageReference storageReference = storage.getReferenceFromUrl(videoDetail.fileUrl);
             final File rootPath = new File(Environment.getExternalStorageDirectory(), "/LearnHub");
-            Log.d("meta data", "" + rootPath);
             storageReference.getMetadata().addOnSuccessListener(new OnSuccessListener<StorageMetadata>() {
                 @Override
                 public void onSuccess(StorageMetadata storageMetadata) {
                     final String type = storageMetadata.getContentType();
                     String name = storageMetadata.getName();
-                    Log.d("meta data", type);
                     final String extension = type.substring(type.lastIndexOf("/") + 1);
 
                     if (!rootPath.exists()) {
@@ -1151,7 +1141,7 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
                                 @Override
                                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
 
-                                    notificationBuilder.setContentText("Download complete");
+                                    notificationBuilder.setContentText(getString(R.string.download_complete));
                                     // Removes the progress bar
                                     notificationBuilder.setProgress(0, 0, false);
                                     notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_upload_done);
@@ -1181,8 +1171,8 @@ public class VideoDetailActivity extends BaseActivity implements SeekBar.OnSeekB
 
     private void openFileSnackBar(File rootPath, final File localFile, final String type) {
         Snackbar snackbar = Snackbar.make(coordinatorLayout,
-                "File is stored in " + rootPath, Snackbar.LENGTH_INDEFINITE)
-                .setAction("OPEN", new View.OnClickListener() {
+                getString(R.string.file_is_stored) + rootPath, Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.open_snackbar, new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         Intent openIntent = new Intent(Intent.ACTION_VIEW);

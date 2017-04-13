@@ -27,18 +27,18 @@ public class SpinnerAdapter extends ArrayAdapter<Category> {
     LayoutInflater inflater;
 
     public SpinnerAdapter(Activity context, int groupid, int id, List<Category>
-            list){
-        super(context,id,list);
+            list) {
+        super(context, id, list);
         this.context = context;
-        this.list=list;
-        inflater=(LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.groupid=groupid;
+        this.list = list;
+        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.groupid = groupid;
     }
 
     @NonNull
 
-    public View getView(int position, View convertView, @NonNull ViewGroup parent ){
-        View itemView=inflater.inflate(groupid,parent,false);
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+        View itemView = inflater.inflate(groupid, parent, false);
         ImageView imageView = (ImageView) itemView.findViewById(R.id.iv_category_image);
         imageView.setImageDrawable(
                 new IconicsDrawable(context)
@@ -46,14 +46,14 @@ public class SpinnerAdapter extends ArrayAdapter<Category> {
                         .sizeDp(24)
         );
         imageView.setContentDescription(list.get(position).getCategoryName());
-        TextView textView=(TextView)itemView.findViewById(R.id.tv_category_name);
+        TextView textView = (TextView) itemView.findViewById(R.id.tv_category_name);
         textView.setText(list.get(position).getCategoryName());
         return itemView;
     }
 
     public View getDropDownView(int position, View convertView, ViewGroup
-            parent){
-        return getView(position,convertView,parent);
+            parent) {
+        return getView(position, convertView, parent);
 
     }
 }

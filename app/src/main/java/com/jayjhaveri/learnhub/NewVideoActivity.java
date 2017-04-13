@@ -226,7 +226,7 @@ public class NewVideoActivity extends BaseActivity {
 
 // Produces DataSource instances through which media data is loaded.
         DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this,
-                Util.getUserAgent(this, "LearnHub"), bandwidthMeter);
+                Util.getUserAgent(this, getString(R.string.app_name)), bandwidthMeter);
 // Produces Extractor instances for parsing the media data.
         ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
 // This is the MediaSource representing the media to be played.
@@ -272,7 +272,6 @@ public class NewVideoActivity extends BaseActivity {
                         .into(iv_upload_image);
             } else if (requestCode == RC_FILE) {
                 fileUri = data.getData();
-                Log.d("New video", "" + fileUri);
                 tv_file_info.setVisibility(View.VISIBLE);
                 tv_file_info.setText(getString(R.string.selected_file_desc) + getFileName(fileUri));
             }
@@ -298,17 +297,17 @@ public class NewVideoActivity extends BaseActivity {
         final String desc = et_desc.getText().toString().trim();
 
         if (TextUtils.isEmpty(title)) {
-            et_title.setError("Required");
+            et_title.setError(getString(R.string.et_title_error));
             return 1;
         }
 
         if (TextUtils.isEmpty(desc)) {
-            et_desc.setError("Required");
+            et_desc.setError(getString(R.string.et_title_error));
             return 1;
         }
 
         if (imageUri == null) {
-            Toast.makeText(NewVideoActivity.this, "Image is required", Toast.LENGTH_SHORT).show();
+            Toast.makeText(NewVideoActivity.this, R.string.image_required, Toast.LENGTH_SHORT).show();
             return 1;
         }
 
@@ -325,121 +324,121 @@ public class NewVideoActivity extends BaseActivity {
         notificationBuilder = new NotificationCompat.Builder(this);
 
 
-        notificationBuilder.setContentTitle("Upload")
-                .setContentText("Upload in progress")
+        notificationBuilder.setContentTitle(getString(R.string.upload_video))
+                .setContentText(getString(R.string.upload_in_progress))
                 .setSmallIcon(android.R.drawable.stat_sys_upload);
 
         Utilities.writeStringPreference(this, getString(R.string.video_uri), videoUri.toString());
 
 
-        Toast.makeText(this, "Upload in progress.....", Toast.LENGTH_LONG).show();
+        Toast.makeText(this, R.string.upload_progress, Toast.LENGTH_LONG).show();
 
         final UploadTask uploadTaskImage = imageUploadRef.putFile(imageUri);
 
 
-                        uploadTaskImage.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                downloadImageUrl = taskSnapshot.getDownloadUrl();
-                            }
-                        });
+        uploadTaskImage.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                downloadImageUrl = taskSnapshot.getDownloadUrl();
+            }
+        });
 
 
-                        if (fileUri != null) {
-                            UploadTask uploadTaskFile = fileRef.putFile(fileUri);
-                            uploadTaskFile.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                                @Override
-                                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                    downloadFileUrl = taskSnapshot.getDownloadUrl();
-                                }
-                            });
-                        }
+        if (fileUri != null) {
+            UploadTask uploadTaskFile = fileRef.putFile(fileUri);
+            uploadTaskFile.addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                    downloadFileUrl = taskSnapshot.getDownloadUrl();
+                }
+            });
+        }
 
-                        final UploadTask uploadTaskVideo = videoUploadRef.putFile(videoUri);
+        final UploadTask uploadTaskVideo = videoUploadRef.putFile(videoUri);
 
-                        mNotifyManager.notify(notificationId, notificationBuilder.build());
-                        uploadTaskVideo.addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                            }
-                        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+        mNotifyManager.notify(notificationId, notificationBuilder.build());
+        uploadTaskVideo.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
 
-                                downloadVideoUrl = taskSnapshot.getDownloadUrl();
-                                Utilities.deleteStringPreference(NewVideoActivity.this, getString(R.string.session_uri));
-                                Utilities.deleteStringPreference(NewVideoActivity.this, getString(R.string.video_uri));
-                                notificationBuilder.setContentText("Upload complete");
-                                // Removes the progress bar
-                                notificationBuilder.setProgress(0, 0, false);
-                                notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_upload_done);
-                                mNotifyManager.notify(notificationId, notificationBuilder.build());
-                                mNotifyManager.cancel(notificationId);
-                                //Firebase user
-                                FirebaseUser user = firebaseAuth.getCurrentUser();
-                                String profileImage = user.getPhotoUrl().toString();
+                downloadVideoUrl = taskSnapshot.getDownloadUrl();
+                Utilities.deleteStringPreference(NewVideoActivity.this, getString(R.string.session_uri));
+                Utilities.deleteStringPreference(NewVideoActivity.this, getString(R.string.video_uri));
+                notificationBuilder.setContentText(getString(R.string.upload_complete));
+                // Removes the progress bar
+                notificationBuilder.setProgress(0, 0, false);
+                notificationBuilder.setSmallIcon(android.R.drawable.stat_sys_upload_done);
+                mNotifyManager.notify(notificationId, notificationBuilder.build());
+                mNotifyManager.cancel(notificationId);
+                //Firebase user
+                FirebaseUser user = firebaseAuth.getCurrentUser();
+                String profileImage = user.getPhotoUrl().toString();
 
-                                VideoDetail videoDetail;
-                                String key = database.child("videos").push().getKey();
-                                if (profileImage != null) {
-                                    videoDetail = new VideoDetail(getUid(),
-                                            user.getDisplayName(),
-                                            mSelectedCategory,
-                                            title,
-                                            desc,
-                                            profileImage,
-                                            downloadVideoUrl.toString(),
-                                            downloadImageUrl.toString(),
-                                            downloadFileUrl != null ? downloadFileUrl.toString() : null,
-                                            duration);
-                                } else {
-                                    videoDetail = new VideoDetail(getUid(),
-                                            user.getDisplayName(),
-                                            mSelectedCategory,
-                                            title,
-                                            desc,
-                                            null,
-                                            downloadVideoUrl.toString(),
-                                            downloadImageUrl.toString(),
-                                            downloadFileUrl != null ? downloadFileUrl.toString() : null,
-                                            duration);
-                                }
+                VideoDetail videoDetail;
+                String key = database.child("videos").push().getKey();
+                if (profileImage != null) {
+                    videoDetail = new VideoDetail(getUid(),
+                            user.getDisplayName(),
+                            mSelectedCategory,
+                            title,
+                            desc,
+                            profileImage,
+                            downloadVideoUrl.toString(),
+                            downloadImageUrl.toString(),
+                            downloadFileUrl != null ? downloadFileUrl.toString() : null,
+                            duration);
+                } else {
+                    videoDetail = new VideoDetail(getUid(),
+                            user.getDisplayName(),
+                            mSelectedCategory,
+                            title,
+                            desc,
+                            null,
+                            downloadVideoUrl.toString(),
+                            downloadImageUrl.toString(),
+                            downloadFileUrl != null ? downloadFileUrl.toString() : null,
+                            duration);
+                }
 
 
-                                Map<String, Object> videoValues = videoDetail.toMap();
+                Map<String, Object> videoValues = videoDetail.toMap();
 
-                                Map<String, Object> childUpdates = new HashMap<>();
+                Map<String, Object> childUpdates = new HashMap<>();
 
-                                childUpdates.put("/videos/" + key, videoValues);
-                                childUpdates.put("/user-videos/" + getUid() + "/" + key, videoValues);
-                                childUpdates.put("/categories/" + mSelectedCategory + "/" + key, videoValues);
-                                database.updateChildren(childUpdates);
+                childUpdates.put("/videos/" + key, videoValues);
+                childUpdates.put("/user-videos/" + getUid() + "/" + key, videoValues);
+                childUpdates.put("/categories/" + mSelectedCategory + "/" + key, videoValues);
+                database.updateChildren(childUpdates);
 
-                                Utilities.deleteStringPreference(NewVideoActivity.this, getString(R.string.video_uri));
-                                Utilities.deleteStringPreference(NewVideoActivity.this, getString(R.string.session_uri));
+                Utilities.deleteStringPreference(NewVideoActivity.this, getString(R.string.video_uri));
+                Utilities.deleteStringPreference(NewVideoActivity.this, getString(R.string.session_uri));
 
-                            }
-                        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+            }
+        }).addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
 
-                            @SuppressWarnings("VisibleForTests")
-                            @Override
-                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                                Uri sessionUri = taskSnapshot.getUploadSessionUri();
-                                if (sessionUri != null && !saved) {
-                                    saved = true;
-                                    Utilities.writeStringPreference(NewVideoActivity.this,
-                                            getString(R.string.session_uri),
-                                            sessionUri.toString());
+            @SuppressWarnings("VisibleForTests")
+            @Override
+            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                Uri sessionUri = taskSnapshot.getUploadSessionUri();
+                if (sessionUri != null && !saved) {
+                    saved = true;
+                    Utilities.writeStringPreference(NewVideoActivity.this,
+                            getString(R.string.session_uri),
+                            sessionUri.toString());
 
-                                    Utilities.writeStringPreference(NewVideoActivity.this,
-                                            getString(R.string.video_uri),
-                                            videoUri.toString());
-                                }
-                                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
-                                notificationBuilder.setProgress(100, (int) progress, false);
-                                mNotifyManager.notify(notificationId, notificationBuilder.build());
-                            }
-                        });
+                    Utilities.writeStringPreference(NewVideoActivity.this,
+                            getString(R.string.video_uri),
+                            videoUri.toString());
+                }
+                double progress = (100.0 * taskSnapshot.getBytesTransferred()) / taskSnapshot.getTotalByteCount();
+                notificationBuilder.setProgress(100, (int) progress, false);
+                mNotifyManager.notify(notificationId, notificationBuilder.build());
+            }
+        });
 
         return 0;
     }
@@ -449,14 +448,14 @@ public class NewVideoActivity extends BaseActivity {
         Intent imageIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         imageIntent.setType("image/*");
         imageIntent.setAction(Intent.ACTION_GET_CONTENT);
-        Intent chooserIntent = Intent.createChooser(imageIntent, "Select Image");
+        Intent chooserIntent = Intent.createChooser(imageIntent, getString(R.string.select_image));
         startActivityForResult(chooserIntent, RC_IMAGE);
     }
 
     private void openFileIntent() {
         Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
         fileIntent.setType("*/*");
-        Intent chooserIntent = Intent.createChooser(fileIntent, "Select file");
+        Intent chooserIntent = Intent.createChooser(fileIntent, getString(R.string.select_file));
         startActivityForResult(chooserIntent, RC_FILE);
     }
 
@@ -477,7 +476,6 @@ public class NewVideoActivity extends BaseActivity {
                 // provider-specific, and might not necessarily be the file name.
                 String displayName = cursor.getString(
                         cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME));
-                Log.i("NewFile", "Display Name: " + displayName);
 
                 int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
                 // If the size is unknown, the value stored is null.  But since an
@@ -494,17 +492,17 @@ public class NewVideoActivity extends BaseActivity {
                 } else {
                     size = "Unknown";
                 }
-                Log.i("NewFile", "Size: " + size);
                 return displayName;
             }
 
         } finally {
-            cursor.close();
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return null;
     }
-
 
 
 }

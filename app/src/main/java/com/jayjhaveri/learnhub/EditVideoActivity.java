@@ -84,17 +84,6 @@ public class EditVideoActivity extends BaseActivity {
                         .into(iv_video_image);
             }
 
-            int getSelectedPosition(String videoCategory) {
-                for (int i = 0; i < BaseApplication.categoryList.size(); i++) {
-                    String category = BaseApplication.categoryList.get(i).getCategoryName();
-                    if (videoCategory.equals(category)) {
-                        return i;
-                    }
-                }
-
-                return 0;
-            }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
